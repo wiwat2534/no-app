@@ -1,0 +1,1568 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>สมุดความดันคุณเติม</title>
+<meta name="theme-color" content="#FDEFF3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ความดัน">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<script>try{if(localStorage.getItem("bp-lock-v1"))document.documentElement.classList.add("locked")}catch(_){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=IBM+Plex+Sans+Thai+Looped:wght@400;500;600&display=swap">
+<style>
+/* Layout: แอปมือถือคอลัมน์เดียว โทนพาสเทลสดใส — คุณหมอการ์ตูนอยู่บนสุดและพูดตอบค่าที่กรอก จากนั้นช่องกรอก สถานะวันนี้ สรุปเดือน กราฟ ประวัติ */
+:root{
+  --bg:#EAF6F3; --bg2:#FDEFF3; --surface:#FFFFFF; --ink:#2B2D42; --muted:#6B6F86; --line:#DCEBE7;
+  --sys:#E8546F; --dia:#5B6CD6; --sys-soft:#FFE1E7; --dia-soft:#E3E7FF;
+  --accent:#F2668B; --accent2:#7C6BE6; --on-accent:#FFFFFF; --mint:#3FB59B; --sun:#FFC857;
+  --g3:#D63C58; --g2:#D9771E; --g1:#B08A00; --g0:#2E9E6F;
+  --g3-bg:#FFE1E7; --g2-bg:#FFEBD6; --g1-bg:#FFF4C9; --g0-bg:#DDF5EA;
+  --bubble:#FFFFFF; --shadow:0 6px 18px rgb(91 108 214 / .10);
+  --head:"Mitr","IBM Plex Sans Thai Looped",Tahoma,sans-serif;
+  --ui:"IBM Plex Sans Thai Looped",Tahoma,sans-serif;
+  --num:"Mitr",Tahoma,sans-serif;
+  --r:22px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#171A2B; --bg2:#22192A; --surface:#20243A; --ink:#F1F2FA; --muted:#A9AECB; --line:#323853;
+  --sys:#FF8DA3; --dia:#9AA6FF; --sys-soft:#3E2433; --dia-soft:#2A3060;
+  --accent:#FF8DA8; --accent2:#A99BFF; --on-accent:#1B1C2B; --mint:#6DDBC0; --sun:#FFD57A;
+  --g3:#FF8DA3; --g2:#FFB46B; --g1:#F0D163; --g0:#76E0AE;
+  --g3-bg:#3E2433; --g2-bg:#3D2C1C; --g1-bg:#3A3418; --g0-bg:#1D3A2E;
+  --bubble:#2A2F4A; --shadow:0 6px 18px rgb(0 0 0 / .35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#171A2B; --bg2:#22192A; --surface:#20243A; --ink:#F1F2FA; --muted:#A9AECB; --line:#323853;
+  --sys:#FF8DA3; --dia:#9AA6FF; --sys-soft:#3E2433; --dia-soft:#2A3060;
+  --accent:#FF8DA8; --accent2:#A99BFF; --on-accent:#1B1C2B; --mint:#6DDBC0; --sun:#FFD57A;
+  --g3:#FF8DA3; --g2:#FFB46B; --g1:#F0D163; --g0:#76E0AE;
+  --g3-bg:#3E2433; --g2-bg:#3D2C1C; --g1-bg:#3A3418; --g0-bg:#1D3A2E;
+  --bubble:#2A2F4A; --shadow:0 6px 18px rgb(0 0 0 / .35); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:linear-gradient(180deg,var(--bg2) 0,var(--bg) 340px) var(--bg);background-color:var(--bg);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 40px;min-height:100%}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+/* ---- ส่วนหัว + คุณหมอ ---- */
+.hero{display:grid;grid-template-columns:118px 1fr;gap:10px;align-items:end;padding-top:6px}
+.doc{width:118px;height:auto;display:block}
+.hero-text{display:flex;flex-direction:column;gap:8px;min-width:0;padding-bottom:8px}
+h1{font-family:var(--head);font-size:1.55rem;margin:0;font-weight:600;line-height:1.2;color:var(--ink);text-wrap:balance}
+h1 .heart{color:var(--accent)}
+.bubble{position:relative;background:var(--bubble);border-radius:18px;padding:10px 14px;font-size:.95rem;line-height:1.45;box-shadow:var(--shadow);border:2px solid var(--line)}
+.bubble::before{content:"";position:absolute;left:-10px;bottom:16px;border:8px solid transparent;border-right-color:var(--line)}
+.bubble::after{content:"";position:absolute;left:-6px;bottom:17px;border:7px solid transparent;border-right-color:var(--bubble)}
+.sub{color:var(--muted);font-size:.88rem;margin:0}
+.card{background:var(--surface);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0;box-shadow:var(--shadow);border:1px solid var(--line)}
+h2{font-family:var(--head);font-size:1.08rem;margin:0;font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+h2 .ico{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:10px;margin-right:8px;font-size:1rem;vertical-align:middle}
+.label{font-size:.8rem;color:var(--muted)}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border-radius:16px;padding:5px;gap:5px}
+.seg button{border:0;background:transparent;color:var(--muted);font-family:var(--head);font-size:1rem;padding:10px;border-radius:12px;cursor:pointer}
+.seg #btnAm[aria-pressed="true"]{background:var(--sun);color:#3A2A00}
+.seg #btnPm[aria-pressed="true"]{background:var(--accent2);color:#FFFFFF}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.grid2 .btn,.btnfull{width:100%;margin:0;justify-content:center;text-align:center;padding-left:8px;padding-right:8px}
+.grid2 .btn.ghost{font-size:.9rem}
+.date{font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:8px 10px;min-width:0}
+.pair{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:8px}
+.slash{font-family:var(--num);font-size:2.4rem;color:var(--muted);padding-bottom:12px}
+.big{display:flex;flex-direction:column;gap:4px;min-width:0}
+.big input{width:100%;font-family:var(--num);font-size:2.7rem;font-weight:500;text-align:center;padding:8px 4px;border-radius:18px;
+  border:3px solid var(--sys-soft);background:var(--sys-soft);color:var(--sys);font-variant-numeric:tabular-nums}
+.big.d input{border-color:var(--dia-soft);background:var(--dia-soft);color:var(--dia)}
+#sys:focus{border-color:var(--sys);outline:none} #dia:focus{border-color:var(--dia);outline:none}
+.big input::placeholder{color:var(--muted);opacity:.5}
+.big .label{text-align:center;font-size:.85rem}
+.big .label b{color:var(--sys);font-family:var(--head);font-weight:500} .big.d .label b{color:var(--dia)}
+input[type=text]{font:inherit;width:100%;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.84rem;font-weight:600;padding:4px 11px;border-radius:999px;white-space:nowrap}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.g3{color:var(--g3);background:var(--g3-bg)} .g2{color:var(--g2);background:var(--g2-bg)}
+.g1{color:var(--g1);background:var(--g1-bg)} .g0{color:var(--g0);background:var(--g0-bg)}
+.btn{font-family:var(--head);font-size:1.12rem;border:0;border-radius:16px;padding:14px;cursor:pointer;color:var(--on-accent);
+  background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 6px 14px rgb(242 102 139 / .28)}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:var(--bg);color:var(--ink);border:2px solid var(--line);font-size:.92rem;padding:10px 14px;box-shadow:none;font-family:var(--ui);font-weight:600}
+.btn.danger{background:var(--g3-bg);color:var(--g3);font-size:.92rem;padding:10px 14px;box-shadow:none;font-family:var(--ui);font-weight:600}
+:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}
+.msg{font-size:.9rem;border-radius:14px;padding:10px 12px}
+.msg.warn{background:var(--g3-bg);color:var(--g3)}
+.msg.info{background:var(--dia-soft);color:var(--ink)}
+.today{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.slot{border:2px dashed var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.slot.am.done{border:0;background:#FFF5D9} .slot.pm.done{border:0;background:#ECE8FF}
+.slot .label{font-family:var(--head);font-size:.9rem;color:var(--ink)}
+.reading{font-family:var(--num);font-size:1.6rem;font-variant-numeric:tabular-nums}
+.reading .s{color:var(--sys)} .reading .d{color:var(--dia)} .reading .x{color:var(--muted);font-family:var(--ui);font-size:.95rem}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.stat:nth-child(1){background:var(--sys-soft)} .stat:nth-child(2){background:var(--dia-soft)}
+.stat:nth-child(3){background:var(--g2-bg)} .stat:nth-child(4){background:var(--g3-bg)}
+.stat .v{font-family:var(--num);font-size:1.4rem;font-variant-numeric:tabular-nums}
+.monthnav{display:flex;align-items:center;gap:6px}
+.monthnav button{font:inherit;width:38px;height:38px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:1.1rem}
+.monthnav button:disabled{opacity:.35}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:16px;height:4px;border-radius:2px}
+.list{display:flex;flex-direction:column;gap:6px}
+.day{display:grid;grid-template-columns:54px 1fr 1fr;gap:8px;align-items:center;padding:10px;border-radius:14px;
+  background:var(--bg);border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;width:100%}
+.day .dd{font-family:var(--head);font-variant-numeric:tabular-nums;font-size:1.05rem}
+.day .dd small{display:block;color:var(--muted);font-family:var(--ui);font-size:.75rem}
+.day .r{font-family:var(--num);font-size:1.05rem;font-variant-numeric:tabular-nums}
+.day .note{grid-column:2 / -1;font-size:.82rem;color:var(--muted);margin-top:-4px}
+.day .r .empty{color:var(--muted);opacity:.4}
+.colhead{display:grid;grid-template-columns:54px 1fr 1fr;gap:8px;font-size:.78rem;color:var(--muted);padding:0 10px}
+.empty-state{color:var(--muted);text-align:center;padding:18px 8px;font-size:.92rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--surface);
+  padding:10px 18px;border-radius:999px;font-family:var(--head);font-size:.98rem;z-index:20;box-shadow:var(--shadow)}
+.foot{font-size:.78rem;color:var(--muted);line-height:1.6;text-align:center}
+
+.page{display:flex;flex-direction:column;gap:16px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;
+  background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px rgb(91 108 214 / .10);
+  padding:6px max(10px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.tabbar button{border:0;background:transparent;color:var(--muted);font-family:var(--head);font-size:.82rem;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:6px 2px;border-radius:14px;cursor:pointer}
+.tabbar .ti{font-size:1.25rem;line-height:1;width:44px;height:30px;display:grid;place-items:center;border-radius:12px}
+.tabbar button[aria-current="page"]{color:var(--accent)}
+.tabbar button[aria-current="page"] .ti{background:var(--sys-soft)}
+body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.hero.compact{grid-template-columns:72px 1fr}
+.hero.compact .doc{width:72px}
+.hero.compact .sub{display:none}
+.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
+/* การเคลื่อนไหวของคุณหมอ */
+.doc .eye{transform-origin:center;transform-box:fill-box}
+@media (prefers-reduced-motion:no-preference){
+  .doc .eye{animation:blink 4.5s infinite}
+  .doc.bounce{animation:hop .6s ease}
+  .btn,.seg button{transition:background .15s,opacity .15s,transform .1s}
+  .btn:active{transform:scale(.98)}
+}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
+/* ---- เพิ่มสำหรับแอปออฟไลน์ ---- */
+body{padding-top:max(10px,env(safe-area-inset-top,0px))}
+html.locked .wrap,html.locked .tabbar{visibility:hidden}
+#lockOv{position:fixed;inset:0;z-index:60;background:linear-gradient(180deg,var(--bg2),var(--bg));display:flex;justify-content:center;align-items:center;
+  padding:max(20px,env(safe-area-inset-top,0px)) 16px max(20px,env(safe-area-inset-bottom,0px));overflow:auto}
+.lk{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.lk-logo{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;font-size:2rem;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow)}
+.lk-title{justify-content:center;font-size:1.25rem}
+.lk-sub{margin:0;color:var(--muted);min-height:1.5em}
+.dots{display:flex;gap:16px;justify-content:center;margin:8px 0 14px}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--accent2);transition:background .12s}
+.dots i.on{background:var(--accent2)}
+.dots.shake{animation:shake .35s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){.dots.shake{animation:none}}
+.keys{display:grid;grid-template-columns:repeat(3,72px);gap:14px 22px;justify-content:center}
+.keys button{width:72px;height:72px;border-radius:50%;border:0;background:var(--surface);color:var(--ink);font-family:var(--num);font-size:1.7rem;
+  box-shadow:var(--shadow);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.keys button:active{background:var(--dia-soft)}
+.keys button.fn{background:transparent;box-shadow:none;font-size:1.5rem;color:var(--accent2)}
+.keys button small{font-family:var(--ui);font-size:.62rem;margin-top:3px}
+.lk-links{display:flex;justify-content:space-between;width:100%;margin-top:10px}
+.link{background:none;border:0;color:var(--accent2);font:inherit;font-weight:600;padding:8px;cursor:pointer}
+.lk-form{display:flex;flex-direction:column;gap:10px;width:100%;text-align:left}
+.lk-form hr{width:100%;border:0;border-top:1px solid var(--line);margin:6px 0}
+.bk-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.bk-banner .btn{padding:8px 12px}
+.sheet{position:fixed;inset:0;z-index:70;background:rgb(0 0 0 / .35);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.sheet-card{background:var(--surface);border-radius:22px;padding:20px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:10px;text-align:center;
+  margin-bottom:env(safe-area-inset-bottom,0px)}
+.sheet-ico{font-size:2rem}
+.sheet-card .sub{word-break:break-all}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <svg class="doc" id="doc" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="คุณหมอการ์ตูน">
+      <ellipse cx="60" cy="134" rx="40" ry="5" fill="#000" opacity=".08"/>
+      <path d="M22 140 C22 108 36 96 60 96 C84 96 98 108 98 140 Z" fill="#FFFFFF" stroke="#C9D3E6" stroke-width="2"/>
+      <path d="M50 98 L60 118 L70 98 Z" fill="#8FD3C3"/>
+      <path d="M50 98 L44 120 M70 98 L76 120" stroke="#C9D3E6" stroke-width="2" fill="none"/>
+      <rect x="74" y="118" width="13" height="12" rx="3" fill="#FFF1F4" stroke="#F2A3B5" stroke-width="1.5"/>
+      <path d="M80.5 120.5 v7 M77 124 h7" stroke="#E8546F" stroke-width="2" stroke-linecap="round"/>
+      <path d="M46 100 C40 112 42 124 52 126" stroke="#5B6CD6" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <circle cx="54" cy="126" r="4.5" fill="#9AA6FF" stroke="#5B6CD6" stroke-width="2"/>
+      <rect x="53" y="86" width="14" height="14" rx="5" fill="#FFD3B0"/>
+      <circle cx="60" cy="60" r="31" fill="#FFDDBF"/>
+      <path d="M29 58 C28 32 46 24 60 24 C76 24 93 32 91 58 C86 46 78 40 70 41 C62 34 46 38 40 46 C35 48 31 52 29 58 Z" fill="#4A3B35"/>
+      <rect x="31" y="38" width="58" height="6" rx="3" fill="#8FD3C3"/>
+      <circle cx="74" cy="41" r="9" fill="#E3F1FF" stroke="#9FB4D8" stroke-width="2"/>
+      <circle cx="74" cy="41" r="3.5" fill="#FFFFFF"/>
+      <ellipse class="eye" cx="49" cy="62" rx="3.6" ry="4.4" fill="#2B2D42"/>
+      <ellipse class="eye" cx="71" cy="62" rx="3.6" ry="4.4" fill="#2B2D42"/>
+      <circle cx="50.2" cy="60.4" r="1.2" fill="#FFFFFF"/><circle cx="72.2" cy="60.4" r="1.2" fill="#FFFFFF"/>
+      <ellipse cx="41" cy="72" rx="5" ry="3" fill="#FF9DB0" opacity=".6"/><ellipse cx="79" cy="72" rx="5" ry="3" fill="#FF9DB0" opacity=".6"/>
+      <g id="mHappy"><path d="M51 73 Q60 83 69 73" stroke="#2B2D42" stroke-width="2.6" fill="#E8546F" stroke-linecap="round" stroke-linejoin="round"/></g>
+      <g id="mOk" style="display:none"><path d="M52 76 Q60 80 68 76" stroke="#2B2D42" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>
+      <g id="mWorry" style="display:none"><path d="M52 79 Q60 72 68 79" stroke="#2B2D42" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <path d="M43 53 L53 56 M77 53 L67 56" stroke="#4A3B35" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M86 60 q3 5 0 8 q-3 -3 0 -8 Z" fill="#8FD3FF"/></g>
+    </svg>
+    <div class="hero-text">
+      <h1>สมุดความดันของคุณเติม<span class="heart"> ♥</span></h1>
+      <div class="bubble" id="bubble" aria-live="polite">สวัสดีครับคุณเติม วันนี้วัดความดันหรือยังครับ?</div>
+      <p class="sub" id="todayLabel">วัดที่บ้าน · เป้าหมายต่ำกว่า 135/85</p>
+    </div>
+  </header>
+
+  <div class="page" id="page-home" data-page="home">
+  <section class="card" aria-labelledby="entryTitle">
+    <h2 id="entryTitle"><span><span class="ico" style="background:var(--sys-soft);color:var(--sys)">♥</span><span id="entryHeading">บันทึกค่าความดัน</span></span><span id="liveChip"></span></h2>
+    <div class="seg" role="group" aria-label="ช่วงเวลาที่วัด">
+      <button type="button" id="btnAm" aria-pressed="true">ตอนเช้า</button>
+      <button type="button" id="btnPm" aria-pressed="false">ก่อนนอน</button>
+    </div>
+    <div class="row">
+      <label class="label" for="date">วันที่วัด</label>
+      <input class="date" type="date" id="date">
+    </div>
+    <div class="pair">
+      <div class="big"><label class="label" for="sys"><b>ตัวบน</b> (SYS)</label>
+        <input id="sys" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="—" autocomplete="off"></div>
+      <div class="slash" aria-hidden="true">/</div>
+      <div class="big d"><label class="label" for="dia"><b>ตัวล่าง</b> (DIA)</label>
+        <input id="dia" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="—" autocomplete="off"></div>
+    </div>
+    <div>
+      <label class="label" for="note">หมายเหตุของวันนี้ (ถ้ามี)</label>
+      <input type="text" id="note" placeholder="เช่น มีอาการเครียดสูง, ลืมกินยา" maxlength="80">
+    </div>
+    <div id="formMsg" class="msg" hidden></div>
+    <button class="btn" id="save" type="button" disabled>บันทึก</button>
+    <div class="row" id="editRow" hidden>
+      <button class="btn danger" id="del" type="button">ลบค่าช่วงนี้</button>
+      <button class="btn ghost" id="cancelEdit" type="button">กลับไปกรอกวันนี้</button>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="todayTitle">
+    <h2 id="todayTitle"><span><span class="ico" style="background:#FFF1C7;color:#B07800">☀</span>วันนี้</span></h2>
+    <div class="today" id="todaySlots"></div>
+  </section>
+  </div>
+
+  <div class="page" id="page-sum" data-page="sum" hidden>
+  <section class="card" aria-labelledby="monthTitle">
+    <h2><span><span class="ico" style="background:var(--dia-soft);color:var(--dia)">▤</span><span id="monthTitle">สรุปเดือนนี้</span></span>
+      <span class="monthnav"><button type="button" id="prevM" aria-label="เดือนก่อน">‹</button><button type="button" id="nextM" aria-label="เดือนถัดไป">›</button></span></h2>
+    <div class="stats" id="stats"></div>
+    <div class="chart" id="chart" role="img" aria-label="กราฟความดันรายวันของเดือนที่เลือก"></div>
+    <div class="legend">
+      <span><i style="background:var(--sys)"></i>ตัวบน</span>
+      <span><i style="background:var(--dia)"></i>ตัวล่าง</span>
+      <span><i style="background:var(--muted);height:2px"></i>เกณฑ์ 135 / 85</span>
+      <span>● เช้า ○ ก่อนนอน</span>
+    </div>
+  </section>
+  </div>
+
+  <div class="page" id="page-hist" data-page="hist" hidden>
+  <section class="card" aria-labelledby="histTitle">
+    <h2 id="histTitle"><span><span class="ico" style="background:var(--g0-bg);color:var(--g0)">✎</span>ประวัติ</span> <span class="label" id="histHint">แตะแถวเพื่อแก้ไข</span></h2>
+    <div class="colhead"><span>วันที่</span><span>เช้า</span><span>ก่อนนอน</span></div>
+    <div class="list" id="list"><div class="empty-state">กำลังโหลดข้อมูล…</div></div>
+  </section>
+  </div>
+
+  <div class="page" id="page-file" data-page="file" hidden>
+  <section class="card" aria-labelledby="expTitle">
+    <h2 id="expTitle"><span><span class="ico" style="background:#ECE8FF;color:var(--accent2)">⇪</span>ไฟล์สำหรับพิมพ์ให้แพทย์</span></h2>
+    <p class="sub">สร้างไฟล์จากข้อมูลล่าสุดในแอป มีตาราง สรุป และกราฟครบทุกเดือน พร้อมพิมพ์ลงกระดาษ A4</p>
+    <div class="grid2">
+      <button class="btn" id="mkPdf" type="button">สร้างไฟล์ PDF</button>
+      <button class="btn" id="mkA4" type="button">สร้างไฟล์ Excel</button>
+    </div>
+    <button class="btn btnfull" id="mkPrint" type="button" style="margin-top:10px">🖨️ สั่งพิมพ์</button>
+    <div id="printTip" class="msg info" hidden>ในไอโฟน: กดยืนยัน แล้วเลือก <b>พิมพ์</b> ในหน้าต่างที่ขึ้นมา เลือกเครื่องพิมพ์ แล้วกดพิมพ์ได้เลยครับ<br>ในคอมพิวเตอร์: เปิดไฟล์ PDF ที่ได้ แล้วสั่งพิมพ์</div>
+    <p class="sub" style="margin:2px 0 0;font-size:.82rem">PDF เปิดดูและสั่งพิมพ์ได้ทันที · Excel แก้ไขต่อได้</p>
+    <div id="a4Msg" class="msg info" hidden></div>
+    <p class="label" style="margin:4px 0 0">ส่งออกแบบอื่น</p>
+    <div class="grid2">
+      <button class="btn ghost" id="dlCsv" type="button">ดาวน์โหลด CSV</button>
+      <button class="btn ghost" id="copyTsv" type="button">คัดลอกเป็นตาราง</button>
+    </div>
+    <textarea id="copyBox" hidden readonly rows="4" style="width:100%;font-family:var(--num);font-size:.8rem"></textarea>
+  </section>
+  <p class="foot">เกณฑ์อ้างอิง: แนวทางการรักษาโรคความดันโลหิตสูงในเวชปฏิบัติทั่วไป พ.ศ. 2562 (สมาคมความดันโลหิตสูงแห่งประเทศไทย) —
+    ค่าที่วัดเองที่บ้านเฉลี่ยตั้งแต่ 135/85 ขึ้นไปถือว่าสูง · ใช้ประกอบการพบแพทย์ ไม่ใช่การวินิจฉัย</p>
+  </div>
+</div>
+<nav class="tabbar" aria-label="เมนูหลัก">
+  <button type="button" data-go="home" aria-current="page"><span class="ti">✚</span><span>บันทึก</span></button>
+  <button type="button" data-go="sum"><span class="ti">▤</span><span>สรุป</span></button>
+  <button type="button" data-go="hist"><span class="ti">✎</span><span>ประวัติ</span></button>
+  <button type="button" data-go="file"><span class="ti">⎙</span><span>ไฟล์</span></button>
+</nav>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+/* แทนที่ความสามารถของ Claude ด้วยของในเครื่อง: ข้อมูลเก็บใน localStorage, ไฟล์ส่งผ่านหน้าต่างแชร์ของไอโฟน */
+(function () {
+  const KEY = "bp-readings-v1";
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (_) { return {}; } };
+  const store = o => localStorage.setItem(KEY, JSON.stringify(o));
+  const subs = new Set();
+  const emit = () => {
+    const all = load();
+    const snap = { docs: Object.keys(all).map(id => ({ id, exists: true, data: () => all[id] })) };
+    subs.forEach(f => { try { f(snap); } catch (e) { console.error(e); } });
+  };
+  const api = { load, store, emit, KEY }; window.__bpStore = api;
+  const db = {
+    collection() {
+      return {
+        doc(id) {
+          return {
+            async set(v) { const a = load(); a[id] = v; store(a); api.emit(); },
+            async delete() { const a = load(); delete a[id]; store(a); api.emit(); }
+          };
+        },
+        onSnapshot(cb) { subs.add(cb); setTimeout(emit, 0); return () => subs.delete(cb); }
+      };
+    }
+  };
+  window.addEventListener("storage", e => { if (e.key === KEY) api.emit(); });
+
+  const MIME = { pdf: "application/pdf", xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", csv: "text/csv;charset=utf-8", json: "application/json" };
+
+  /* แผ่นยืนยันสำหรับกรณีที่ไอโฟนไม่ยอมเปิดหน้าต่างแชร์เอง (ต้องมีการแตะจากผู้ใช้) */
+  function tapToShare(file) {
+    return new Promise((ok, bad) => {
+      const sh = document.createElement("div");
+      sh.className = "sheet";
+      sh.innerHTML = `<div class="sheet-card" role="dialog" aria-modal="true" aria-label="ไฟล์พร้อมแล้ว">
+        <div class="sheet-ico">📄</div><b>ไฟล์พร้อมแล้วครับ</b>
+        <p class="sub"></p>
+        <button class="btn" type="button" data-a="go">เปิดหน้าต่างแชร์ / พิมพ์</button>
+        <button class="btn ghost" type="button" data-a="no">ยกเลิก</button></div>`;
+      sh.querySelector(".sub").textContent = file.name;
+      document.body.appendChild(sh);
+      sh.querySelector('[data-a="go"]').onclick = async () => {
+        try { await navigator.share({ files: [file] }); sh.remove(); ok({ status: "saved" }); }
+        catch (e) { sh.remove(); if (e && e.name === "AbortError") bad({ code: "declined" }); else { fallback(file); ok({ status: "saved" }); } }
+      };
+      sh.querySelector('[data-a="no"]').onclick = () => { sh.remove(); bad({ code: "declined" }); };
+    });
+  }
+  function fallback(file) {
+    const url = URL.createObjectURL(file), a = document.createElement("a");
+    a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  const downloads = {
+    async save({ filename, data }) {
+      const ext = filename.split(".").pop().toLowerCase();
+      const blob = new Blob([data], { type: MIME[ext] || "application/octet-stream" });
+      const file = new File([blob], filename, { type: blob.type });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file] }); return { status: "saved" }; }
+        catch (e) {
+          if (e && e.name === "AbortError") throw { code: "declined" };
+          return tapToShare(file);             // หมดเวลาการแตะ ให้แตะอีกครั้ง
+        }
+      }
+      fallback(file); return { status: "saved" };
+    }
+  };
+  window.claude = { async use(n) { return n === "db" ? db : n === "downloads" ? downloads : n === "user" ? { isOwner: async () => true } : null; } };
+  
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (_) {}
+})();
+
+</script>
+<script>
+/* สร้างรายงาน PDF ขนาด A4 จากข้อมูลในแอป: วาดแต่ละหน้าบนผืนผ้าใบ แล้วรวมเป็น PDF ด้วย jsPDF
+   buildPdfPages(days, opts) -> Promise<HTMLCanvasElement[]> */
+async function buildPdfPages(days, opts) {
+  opts = opts || {};
+  const PW = 595, PH = 842, S = 2.4, M = 42;            // หน่วยเป็นพอยต์ (A4)
+  const FONT = '"IBM Plex Sans Thai Looped",Tahoma,sans-serif';
+  const C = { ink: "#1A1A1A", navy: "#1F3864", red: "#B71C1C", orange: "#C55A11", amber: "#9C7A00", green: "#2E7D32", grey: "#595959", blue: "#0033CC", hair: "#D0D0D0", soft: "#7F7F7F" };
+  const TH_MONTH = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  const TH_SHORT = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  const pad = n => String(n).padStart(2, "0"), be = y => y + 543;
+  const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+  const sd = a => { if (a.length < 2) return null; const m = avg(a); return Math.sqrt(a.reduce((s, v) => s + (v - m) ** 2, 0) / (a.length - 1)); };
+  const f0 = v => v == null ? "–" : String(Math.round(v)), f1 = v => v == null ? "–" : v.toFixed(1);
+  const GR = [[180, 110, "ระดับ 3 (สูงรุนแรง)", C.red], [160, 100, "ระดับ 2 (สูงปานกลาง)", C.orange], [140, 90, "ระดับ 1 (สูงเล็กน้อย)", C.amber],
+              [130, 85, "สูงกว่าปกติเล็กน้อย", C.green], [120, 80, "ปกติ", C.green], [0, 0, "เหมาะสม", C.green]];
+  const gIdx = (s, d) => GR.findIndex(g => s >= g[0] || d >= g[1]);
+  try { await Promise.all(["400", "500", "600"].map(w => document.fonts.load(w + ' 16px "IBM Plex Sans Thai Looped"'))); await document.fonts.ready; } catch (_) {}
+
+  const pages = [];
+  let g;
+  const newPage = () => { const cv = document.createElement("canvas"); cv.width = PW * S; cv.height = PH * S; g = cv.getContext("2d"); g.scale(S, S); g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, PW, PH); pages.push(cv); };
+  const text = (t, x, y, size = 10, color = C.ink, align = "left", weight = 400, maxW) => {
+    g.font = `${weight} ${size}px ${FONT}`; g.fillStyle = color; g.textAlign = align; g.textBaseline = "alphabetic";
+    if (maxW) { let s = size; while (s > 6 && g.measureText(t).width > maxW) { s -= 0.5; g.font = `${weight} ${s}px ${FONT}`; } }
+    g.fillText(t, x, y);
+  };
+  const wrap = (t, x, y, maxW, size, color, lh, weight = 400, italic = false) => {
+    g.font = `${italic ? "italic " : ""}${weight} ${size}px ${FONT}`; g.fillStyle = color; g.textAlign = "left";
+    const words = t.split(/(\s+)/); let line = "", yy = y;
+    words.forEach(w => { const test = line + w; if (g.measureText(test).width > maxW && line.trim()) { g.fillText(line.trim(), x, yy); yy += lh; line = w.trimStart(); } else line = test; });
+    if (line.trim()) g.fillText(line.trim(), x, yy); return yy + lh;
+  };
+  const hline = (x1, x2, y, w = 0.6, color = C.hair) => { g.strokeStyle = color; g.lineWidth = w; g.beginPath(); g.moveTo(x1, y); g.lineTo(x2, y); g.stroke(); };
+  const header = (title, sub) => {
+    text(title, M, M + 18, 19, C.navy, "left", 600);
+    let y = wrap(sub, M, M + 36, PW - 2 * M, 9.5, C.grey, 13);
+    g.fillStyle = C.navy; g.fillRect(M, y - 4, PW - 2 * M, 2.2); return y + 10;
+  };
+  const caption = (t, y) => { text(t, M, y, 11.5, C.navy, "left", 600); return y + 8; };
+  /* ตารางแบบรายงานวิชาการ: cols=[{w, align}], rows=[[cell...]] cell = string | {t, color, weight} */
+  const table = (y, cols, head, rows, rh = 17) => {
+    const W = cols.reduce((a, c) => a + c.w, 0), x0 = M;
+    hline(x0, x0 + W, y, 1.3, C.navy);
+    const cellText = (cell, i, yy, isHead) => {
+      const c = cols[i]; let x = x0 + cols.slice(0, i).reduce((a, k) => a + k.w, 0);
+      const o = typeof cell === "object" && cell ? cell : { t: cell == null ? "" : String(cell) };
+      const al = c.align || (i === 0 ? "left" : "center");
+      const tx = al === "left" ? x + 5 : al === "right" ? x + c.w - 5 : x + c.w / 2;
+      text(o.t, tx, yy, isHead ? 9.5 : (o.size || 9.5), isHead ? C.navy : (o.color || C.ink), al, isHead ? 700 : (o.weight || 400), c.w - 8);
+    };
+    let yy = y;
+    (Array.isArray(head[0]) ? head : [head]).forEach(hr => { yy += rh; hr.forEach((h, i) => cellText(h, i, yy - 5, true)); });
+    hline(x0, x0 + W, yy + 1, 0.8, C.navy);
+    rows.forEach((r, k) => { yy += rh; r.forEach((cell, i) => cellText(cell, i, yy - 5, false)); if (k < rows.length - 1) hline(x0, x0 + W, yy + 1, 0.5); });
+    hline(x0, x0 + W, yy + 1.5, 1.3, C.navy);
+    return yy + 14;
+  };
+  const chartImg = async (spec, x, y, w, h) => {
+    const b64 = drawA4Chart(Object.assign({ w: Math.round(w * 1.25), h: Math.round(h * 1.25) }, spec));
+    const img = new Image(); img.src = "data:image/png;base64," + b64; await img.decode();
+    g.drawImage(img, x, y, w, h); return y + h;
+  };
+  const gradeCell = (s, d) => { if (s == null) return ""; const i = gIdx(s, d); return { t: GR[i][2], color: GR[i][3], weight: 600, size: 8.5 }; };
+
+  // ---------- เตรียมข้อมูลรายเดือน ----------
+  const keys = Object.keys(days).sort();
+  const monthsSet = [...new Set(keys.map(k => k.slice(0, 7)))];
+  const months = monthsSet.map(ym => {
+    const [y, m] = ym.split("-").map(Number), nd = new Date(y, m, 0).getDate();
+    const daily = []; for (let d = 1; d <= nd; d++) { const r = days[ym + "-" + pad(d)] || {}; daily.push(Object.assign({ d }, r)); }
+    const P = k => daily.map(x => x[k]).filter(v => v != null);
+    const amS = P("am_s"), amD = P("am_d"), pmS = P("pm_s"), pmD = P("pm_d");
+    const allS = amS.concat(pmS), allD = amD.concat(pmD);
+    const pairs = []; daily.forEach(x => { if (x.am_s != null) pairs.push([x.am_s, x.am_d, 0]); if (x.pm_s != null) pairs.push([x.pm_s, x.pm_d, 1]); });
+    const grades = GR.map(() => [0, 0]); pairs.forEach(([s, d, p]) => grades[gIdx(s, d)][p]++);
+    const wk = [[1, 7], [8, 14], [15, 21], [22, nd]].map(([a, b], i) => {
+      const seg = daily.filter(x => x.d >= a && x.d <= b), Q = k => seg.map(x => x[k]).filter(v => v != null);
+      return { i: i + 1, a, b, amS: avg(Q("am_s")), amD: avg(Q("am_d")), pmS: avg(Q("pm_s")), pmD: avg(Q("pm_d")),
+               allS: avg(Q("am_s").concat(Q("pm_s"))), allD: avg(Q("am_d").concat(Q("pm_d"))) };
+    });
+    const map = x => x.am_s != null || x.pm_s != null;
+    return { y, m, nd, daily, amS, amD, pmS, pmD, allS, allD, pairs, grades, wk,
+      n135: pairs.filter(([s, d]) => s >= 135 || d >= 85).length, n180: pairs.filter(([s, d]) => s >= 180 || d >= 110).length,
+      days: daily.filter(map).length, notes: daily.filter(x => x.note && /ยา|โรงพยาบาล|หมอ/.test(x.note)) };
+  });
+  if (!months.length) return pages;
+  const span = `${TH_SHORT[months[0].m - 1]}–${TH_SHORT[months[months.length - 1].m - 1]} ${be(months[months.length - 1].y)}`;
+  const SOURCE = "ที่มา: ค่าความดันที่วัดเองที่บ้านด้วยเครื่องวัดอัตโนมัติ วันละ 2 ช่วง (เช้า และก่อนนอน) บันทึกผ่านแอปสมุดความดัน · เกณฑ์ตามแนวทางการรักษาโรคความดันโลหิตสูงในเวชปฏิบัติทั่วไป พ.ศ. 2562 (สมาคมความดันโลหิตสูงแห่งประเทศไทย)";
+  const who = opts.name ? " · " + opts.name : "";
+
+  // ================= หน้า 1: ภาพรวม =================
+  newPage();
+  let y = header("รายงานภาพรวมความดันโลหิต " + span, "ค่าเฉลี่ยรายเดือนและรายสัปดาห์ วัดเองที่บ้าน · เป้าหมายเมื่อวัดที่บ้านต่ำกว่า 135/85 mmHg · ใช้ประกอบการพบแพทย์ ไม่ใช่การวินิจฉัย" + who);
+  y = caption("ตารางที่ 1  ค่าเฉลี่ยความดันโลหิตรายเดือน", y + 6);
+  y = table(y, [{ w: 92 }, { w: 52 }, { w: 52 }, { w: 54 }, { w: 58 }, { w: 103 }, { w: 100, align: "left" }],
+    ["เดือน", "ตัวบนเฉลี่ย", "ตัวล่างเฉลี่ย", "ครั้งที่วัด", "≥ 180/110", "ระดับโดยเฉลี่ย", "หมายเหตุ"],
+    months.map(o => { const s = avg(o.allS), d = avg(o.allD), nt = o.notes[o.notes.length - 1];
+      return [{ t: TH_MONTH[o.m - 1] + " " + be(o.y), weight: 600 }, { t: f0(s), color: C.red, weight: 600, size: 11 }, { t: f0(d), color: C.navy, weight: 600, size: 11 },
+        String(o.pairs.length), { t: String(o.n180), color: o.n180 ? C.red : C.ink }, s == null ? "" : gradeCell(s, d),
+        nt ? { t: nt.d + " " + TH_SHORT[o.m - 1] + " " + nt.note, color: C.blue, size: 8.5 } : ""]; }), 20);
+  y = await chartImg({ kind: "bars", categories: months.map(o => TH_MONTH[o.m - 1]),
+    bars: [{ name: "ตัวบนเฉลี่ย", color: C.red, values: months.map(o => avg(o.allS)) }, { name: "ตัวล่างเฉลี่ย", color: C.navy, values: months.map(o => avg(o.allD)) }],
+    ymin: 0, ymax: 200, step: 40, hlines: [135, 85], labels: true }, M, y + 4, PW - 2 * M, 215);
+  y = caption("รูปที่ 1  ค่าเฉลี่ยความดันรายเดือนเทียบเกณฑ์ที่บ้าน 135/85 (เส้นประ)", y + 14);
+  const wk = []; months.forEach(o => o.wk.forEach(w => wk.push({ l: TH_SHORT[o.m - 1] + " ส." + w.i, s: w.allS, d: w.allD })));
+  y = await chartImg({ kind: "bars", small: true, categories: wk.map(w => w.l),
+    bars: [{ name: "ตัวบนเฉลี่ย", color: C.red, values: wk.map(w => w.s) }, { name: "ตัวล่างเฉลี่ย", color: C.navy, values: wk.map(w => w.d) }],
+    ymin: 0, ymax: 200, step: 40, hlines: [135, 85] }, M, y + 6, PW - 2 * M, 215);
+  y = caption("รูปที่ 2  ค่าเฉลี่ยความดันรายสัปดาห์ต่อเนื่อง (รวมเช้าและก่อนนอน)", y + 14);
+  wrap(SOURCE, M, y + 6, PW - 2 * M, 8.5, C.grey, 12, 400, true);
+
+  // ================= รายเดือน =================
+  for (const o of months) {
+    const title = TH_MONTH[o.m - 1] + " " + be(o.y);
+    // ---- หน้า: ข้อมูลรายวัน ----
+    newPage();
+    y = header("บันทึกความดันโลหิต เดือน" + title, "ค่าที่วัดเองที่บ้าน ตอนเช้าและก่อนนอน · MAP = ตัวล่าง + (ตัวบน − ตัวล่าง) ÷ 3 · สีของระดับ: แดง = ระดับ 3, ส้ม = ระดับ 2, เหลืองเข้ม = ระดับ 1, เขียว = ต่ำกว่าระดับ 1");
+    const rh = Math.min(19, (PH - y - 86) / (o.nd + 2));
+    const cols = [{ w: 40 }, { w: 36 }, { w: 36 }, { w: 34 }, { w: 82 }, { w: 36 }, { w: 36 }, { w: 34 }, { w: 82 }, { w: 75, align: "left" }];
+    const rows = o.daily.map(x => {
+      const mp = (s, d) => s == null ? "" : String(Math.round(d + (s - d) / 3));
+      return [pad(x.d) + "/" + pad(o.m), x.am_s != null ? { t: String(x.am_s), color: C.blue, weight: 600 } : "", x.am_d != null ? { t: String(x.am_d), color: C.blue, weight: 600 } : "",
+        mp(x.am_s, x.am_d), gradeCell(x.am_s, x.am_d),
+        x.pm_s != null ? { t: String(x.pm_s), color: C.blue, weight: 600 } : "", x.pm_d != null ? { t: String(x.pm_d), color: C.blue, weight: 600 } : "",
+        mp(x.pm_s, x.pm_d), gradeCell(x.pm_s, x.pm_d), x.note ? { t: x.note, color: C.blue, size: 8 } : ""];
+    });
+    const ty = y + 2;
+    text("ความดันตอนเช้า", M + 40 + 94, ty + 12, 10.5, C.red, "center", 600);
+    text("ความดันก่อนนอน", M + 40 + 188 + 94, ty + 12, 10.5, C.navy, "center", 600);
+    y = table(ty + 20, cols, ["วันที่", "ตัวบน", "ตัวล่าง", "MAP", "ระดับ", "ตัวบน", "ตัวล่าง", "MAP", "ระดับ", "หมายเหตุ"], rows, rh);
+    g.strokeStyle = "#9E9E9E"; g.lineWidth = 0.6;
+    [40, 228, 416].forEach(dx => { g.beginPath(); g.moveTo(M + dx, ty + 20); g.lineTo(M + dx, y - 12.5); g.stroke(); });
+
+    // ---- หน้า: สรุปผล ----
+    newPage();
+    y = header("รายงานสรุปความดันโลหิต เดือน" + title, "วัดเองที่บ้าน · เปรียบเทียบกับเกณฑ์ความดันสูงเมื่อวัดที่บ้าน 135/85 mmHg · ใช้ประกอบการพบแพทย์ ไม่ใช่การวินิจฉัย");
+    const cw = (PW - 2 * M - 18) / 4;
+    [["ค่าเฉลี่ยทั้งเดือน", f0(avg(o.allS)) + "/" + f0(avg(o.allD)), "ตัวบน/ตัวล่าง (mmHg)", C.navy],
+     ["เกินเกณฑ์ที่บ้าน 135/85", o.n135 + " / " + o.pairs.length, "ครั้ง จากที่วัดทั้งหมด", C.orange],
+     ["ถึง 180/110", String(o.n180), "ครั้ง", C.red],
+     ["ค่าสูงสุดของเดือน", o.allS.length ? Math.max(...o.allS) + "/" + Math.max(...o.allD) : "–", "ตัวบนสูงสุด/ตัวล่างสูงสุด", C.red]
+    ].forEach(([l, v, c, col], i) => {
+      const x = M + i * (cw + 6); g.fillStyle = col; g.fillRect(x, y + 4, cw, 3);
+      text(l, x + cw / 2, y + 22, 9, C.grey, "center", 600, cw - 6); text(v, x + cw / 2, y + 50, 22, col, "center", 600, cw - 6); text(c, x + cw / 2, y + 66, 8.5, C.grey, "center", 400, cw - 6);
+      hline(x, x + cw, y + 74, 0.6);
+    });
+    y += 96;
+    const cmp = (a, b, k) => [f1(avg(a)), f1(avg(b)), f1(avg(a.concat(b)))];
+    const mapv = (S2, D2) => S2.map((s, i) => D2[i] + (s - D2[i]) / 3), ppv = (S2, D2) => S2.map((s, i) => s - D2[i]);
+    const tS = avg(o.allS), tD = avg(o.allD);
+    y = caption("ตารางที่ 1  ค่าเฉลี่ยและการกระจายตัวของความดันโลหิต (mmHg)", y);
+    y = table(y, [{ w: 170 }, { w: 62 }, { w: 62 }, { w: 62 }, { w: 155, align: "left" }], ["รายการ", "เช้า", "ก่อนนอน", "รวม", "แปลผล"], [
+      ["ตัวบน (SYS) เฉลี่ย", ...cmp(o.amS, o.pmS), tS == null ? "" : (tS >= 135 ? "สูงกว่าเกณฑ์ที่บ้าน 135 อยู่ " + f0(tS - 135) + " mmHg" : "อยู่ในเกณฑ์ที่บ้าน")],
+      ["ตัวล่าง (DIA) เฉลี่ย", ...cmp(o.amD, o.pmD), tD == null ? "" : (tD >= 85 ? "สูงกว่าเกณฑ์ที่บ้าน 85 อยู่ " + f0(tD - 85) + " mmHg" : "อยู่ในเกณฑ์ที่บ้าน")],
+      ["ความดันเฉลี่ยหลอดเลือดแดง (MAP)", ...cmp(mapv(o.amS, o.amD), mapv(o.pmS, o.pmD)), "ค่าปกติโดยทั่วไปประมาณ 70–100"],
+      ["ช่วงห่างชีพจร (PP) เฉลี่ย", ...cmp(ppv(o.amS, o.amD), ppv(o.pmS, o.pmD)), ""],
+      ["ส่วนเบี่ยงเบนมาตรฐาน (SD) ตัวบน", f1(sd(o.amS)), f1(sd(o.pmS)), f1(sd(o.allS)), "ยิ่งสูง ค่ายิ่งแกว่งมาก"],
+      ["ส่วนเบี่ยงเบนมาตรฐาน (SD) ตัวล่าง", f1(sd(o.amD)), f1(sd(o.pmD)), f1(sd(o.allD)), ""],
+      ["ตัวบน สูงสุด / ต่ำสุด", ...[o.amS, o.pmS, o.allS].map(a => a.length ? Math.max(...a) + " / " + Math.min(...a) : "–"), ""],
+      ["ตัวล่าง สูงสุด / ต่ำสุด", ...[o.amD, o.pmD, o.allD].map(a => a.length ? Math.max(...a) + " / " + Math.min(...a) : "–"), ""]]);
+    y = caption("ตารางที่ 2  การกระจายตามระดับความดัน (จำนวนครั้ง)", y + 4);
+    y = table(y, [{ w: 170 }, { w: 62 }, { w: 62 }, { w: 62 }, { w: 155, align: "left" }], ["ระดับความดัน", "เช้า", "ก่อนนอน", "รวม", "สัดส่วนของที่วัดทั้งหมด"],
+      GR.map((gr, i) => { const t = o.grades[i][0] + o.grades[i][1], pc = o.pairs.length ? t / o.pairs.length : 0;
+        return [{ t: gr[2], color: gr[3], weight: 600 }, String(o.grades[i][0]), String(o.grades[i][1]), String(t),
+          { t: "▇".repeat(Math.round(pc * 16)) + "  " + Math.round(pc * 100) + "%", color: C.orange }]; }));
+    y = caption("ตารางที่ 3  แนวโน้มรายสัปดาห์ (ค่าเฉลี่ย ตัวบน/ตัวล่าง)", y + 4);
+    const ps = (s, d) => s == null ? "–" : f0(s) + "/" + f0(d);
+    y = table(y, [{ w: 170 }, { w: 62 }, { w: 62 }, { w: 108 }, { w: 109 }], ["ช่วง", "เริ่ม", "สิ้นสุด", "เช้า", "ก่อนนอน"],
+      o.wk.map(w => ["สัปดาห์ที่ " + w.i, pad(w.a) + "/" + pad(o.m), pad(w.b) + "/" + pad(o.m), ps(w.amS, w.amD), ps(w.pmS, w.pmD)]));
+    const dS = avg(o.amS) != null && avg(o.pmS) != null ? avg(o.amS) - avg(o.pmS) : null, dD = avg(o.amD) != null && avg(o.pmD) != null ? avg(o.amD) - avg(o.pmD) : null;
+    const lr = v => v == null ? "–" : v > 0 ? "ตอนเช้าสูงกว่า " + v.toFixed(1) + " mmHg" : v < 0 ? "ก่อนนอนสูงกว่า " + (-v).toFixed(1) + " mmHg" : "เท่ากัน";
+    y = caption("ตารางที่ 4  เปรียบเทียบความดันตอนเช้ากับก่อนนอน", y + 4);
+    table(y, [{ w: 170 }, { w: 124 }, { w: 257, align: "left" }], ["รายการ", "เช้า − ก่อนนอน", "แปลผล"],
+      [["ตัวบน (SYS)", dS == null ? "–" : (dS > 0 ? "+" : "") + dS.toFixed(1), lr(dS)], ["ตัวล่าง (DIA)", dD == null ? "–" : (dD > 0 ? "+" : "") + dD.toFixed(1), lr(dD)]]);
+
+    // ---- หน้า: กราฟ ----
+    newPage();
+    y = header("กราฟความดันโลหิต เดือน" + title, "จุดทึบ = ตอนเช้า · จุดโปร่ง = ก่อนนอน · เส้นประ = เกณฑ์ที่บ้าน 135 และ 85 mmHg");
+    y = await chartImg({ kind: "daily", nd: o.nd, daily: o.daily, ymin: 60, ymax: 200, step: 20, hlines: [135, 85] }, M, y + 4, PW - 2 * M, 250);
+    y = caption("รูปที่ 1  ความดันโลหิตรายวัน เดือน" + title, y + 14);
+    y = await chartImg({ kind: "bars", categories: o.wk.map(w => "สัปดาห์ " + w.i),
+      bars: [{ name: "เช้า ตัวบน", color: C.red, values: o.wk.map(w => w.amS) }, { name: "ก่อนนอน ตัวบน", color: C.navy, values: o.wk.map(w => w.pmS) },
+             { name: "เช้า ตัวล่าง", color: "#E57373", values: o.wk.map(w => w.amD) }, { name: "ก่อนนอน ตัวล่าง", color: "#7986CB", values: o.wk.map(w => w.pmD) }],
+      ymin: 0, ymax: 200, step: 40, hlines: [135, 85] }, M, y + 6, PW - 2 * M, 190);
+    y = caption("รูปที่ 2  ค่าเฉลี่ยความดันรายสัปดาห์ เดือน" + title, y + 14);
+    y = await chartImg({ kind: "grades", labels: GR.map(x => x[2]), counts: o.grades }, M, y + 6, PW - 2 * M, 150);
+    y = caption("รูปที่ 3  จำนวนครั้งในแต่ละระดับความดัน แยกเช้าและก่อนนอน", y + 14);
+    wrap(SOURCE, M, y + 6, PW - 2 * M, 8.5, C.grey, 12, 400, true);
+  }
+  // ---- ท้ายกระดาษทุกหน้า ----
+  pages.forEach((cv, i) => {
+    g = cv.getContext("2d");
+    text("บันทึกความดันโลหิต" + who, M, PH - 22, 8, C.grey, "left");
+    text("หน้า " + (i + 1) + " / " + pages.length, PW / 2, PH - 22, 8, C.grey, "center");
+    text("พิมพ์เมื่อ " + new Date().toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" }), PW - M, PH - 22, 8, C.grey, "right");
+  });
+  return pages;
+}
+
+/* สร้างไฟล์ Excel "บันทึกความดัน A4" จากข้อมูลในแอป — รูปแบบเดียวกับไฟล์ A4 ที่พิมพ์ให้แพทย์
+   buildA4Workbook(ExcelJS, days, opts) -> Workbook
+   days: { "YYYY-MM-DD": {am_s, am_d, pm_s, pm_d, note} }
+   opts.chart(spec) -> base64 PNG (ไม่ส่ง = ไม่ใส่กราฟ) */
+function buildA4Workbook(ExcelJS, days, opts) {
+  opts = opts || {};
+  const FONT = "Sarabun";
+  const C = { ink: "1A1A1A", navy: "1F3864", red: "B71C1C", orange: "C55A11", amber: "9C7A00", green: "2E7D32", grey: "595959", blue: "0033CC", hair: "D0D0D0" };
+  const TH_MONTH = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  const TH_SHORT = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  const G = "เกณฑ์!";
+  const STRESS = "มีอาการเครียดสูง";
+  const SOURCE = "ที่มา: ค่าความดันที่วัดเองที่บ้านด้วยเครื่องวัดอัตโนมัติ วันละ 2 ช่วง (เช้า และก่อนนอน) บันทึกผ่านแอปสมุดความดัน";
+  const pad = n => String(n).padStart(2, "0");
+  const be = y => y + 543;
+  const F = (size = 11, bold = false, color = C.ink, italic = false) => ({ name: FONT, size, bold, italic, color: { argb: "FF" + color } });
+  const CEN = { horizontal: "center", vertical: "middle", wrapText: true };
+  const LFT = { horizontal: "left", vertical: "middle", wrapText: true, indent: 1 };
+  const side = (style, color) => ({ style, color: { argb: "FF" + color } });
+  const thick = side("medium", C.navy), mid = side("thin", C.navy), hair = side("thin", C.hair);
+
+  // ---------- เดือนที่จะสร้าง: ตั้งแต่เดือนแรกที่มีข้อมูล ถึงเดือนล่าสุด (อย่างน้อยถึงเดือนปัจจุบัน) ----------
+  const keys = Object.keys(days).sort();
+  const today = opts.today || new Date();
+  let start = keys.length ? keys[0].slice(0, 7) : today.getFullYear() + "-" + pad(today.getMonth() + 1);
+  let endK = today.getFullYear() + "-" + pad(today.getMonth() + 1);
+  if (keys.length && keys[keys.length - 1].slice(0, 7) > endK) endK = keys[keys.length - 1].slice(0, 7);
+  if (opts.endMonth && opts.endMonth > endK) endK = opts.endMonth;
+  const months = [];
+  for (let [y, m] = start.split("-").map(Number); (y + "-" + pad(m)) <= endK; m === 12 ? (y++, m = 1) : m++) months.push({ y, m });
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "สมุดความดัน"; wb.calcProperties.fullCalcOnLoad = true;
+  const summary = wb.addWorksheet("สรุปรวม");
+  const info = [];
+
+  function cell(ws, ref, v, font, align, numFmt) {
+    const c = typeof ref === "string" ? ws.getCell(ref) : ws.getCell(ref[0], ref[1]);
+    if (v !== undefined && v !== null) c.value = v;
+    if (font) c.font = font; if (align) c.alignment = align; if (numFmt) c.numFmt = numFmt;
+    return c;
+  }
+  function banner(ws, title, sub, lastCol) {
+    cell(ws, "A1", title, F(18, true, C.navy), { vertical: "bottom" });
+    cell(ws, "A2", sub, F(10, false, C.grey), { vertical: "top", wrapText: true });
+    ws.mergeCells("A2:" + lastCol + "2");
+    ws.getRow(1).height = 32; ws.getRow(2).height = 34;
+    const n = ws.getColumn(lastCol).number;
+    for (let c = 1; c <= n; c++) ws.getCell(2, c).border = { bottom: side("thick", C.navy) };
+  }
+  function caption(ws, r, text, size = 11.5) { cell(ws, [r, 1], text, F(size, true, C.navy), { vertical: "bottom" }); ws.getRow(r).height = 24; }
+  function note(ws, r, text, lastCol = "E", h = 20) {
+    cell(ws, [r, 1], text, F(9.5, false, C.grey, true), { vertical: "top", wrapText: true });
+    ws.mergeCells("A" + r + ":" + lastCol + r); ws.getRow(r).height = h;
+  }
+  function booktabs(ws, top, bottom, ncols, headerRows = 1) {
+    for (let r = top; r <= bottom; r++) for (let c = 1; c <= ncols; c++) {
+      const b = {};
+      if (r === top) b.top = thick;
+      if (headerRows && r === top + headerRows - 1) b.bottom = mid; else if (r === bottom) b.bottom = thick; else b.bottom = hair;
+      ws.getCell(r, c).border = b;
+    }
+  }
+  function page(ws, area, fitH, titles) {
+    ws.pageSetup = { paperSize: 9, orientation: "portrait", fitToPage: true, fitToWidth: 1, fitToHeight: fitH,
+      horizontalCentered: true, printArea: area, margins: { left: 0.5, right: 0.5, top: 0.55, bottom: 0.6, header: 0.25, footer: 0.28 } };
+    if (titles) ws.pageSetup.printTitlesRow = titles;
+    ws.headerFooter.oddFooter = "&L&8บันทึกความดันโลหิต&C&8หน้า &P / &N&R&8&A";
+    ws.views = [{ showGridLines: false }];
+  }
+  function gradeColors(ws, ref, col, first) {
+    ws.addConditionalFormatting({ ref, rules: [
+      { type: "expression", priority: 1, formulae: [`LEFT(${col}${first},7)="ระดับ 3"`], style: { font: { color: { argb: "FF" + C.red }, bold: true } } },
+      { type: "expression", priority: 2, formulae: [`LEFT(${col}${first},7)="ระดับ 2"`], style: { font: { color: { argb: "FF" + C.orange }, bold: true } } },
+      { type: "expression", priority: 3, formulae: [`LEFT(${col}${first},7)="ระดับ 1"`], style: { font: { color: { argb: "FF" + C.amber }, bold: true } } },
+      { type: "expression", priority: 4, formulae: [`AND(${col}${first}<>"",LEFT(${col}${first},5)<>"ระดับ")`], style: { font: { color: { argb: "FF" + C.green }, bold: true } } }
+    ] });
+  }
+  const gradeF = (s, d, r) => `IF(${s}${r}="","",INDEX(${G}$A$4:$A$9,MIN(COUNTIF(${G}$B$4:$B$9,">"&${s}${r}),COUNTIF(${G}$C$4:$C$9,">"&${d}${r}))+1))`;
+  const fm = f => ({ formula: f.replace(/^=/, "") });
+  const addImg = (ws, spec, r, w, h) => {
+    if (!opts.chart) return;
+    const id = wb.addImage({ base64: opts.chart(spec), extension: "png" });
+    ws.addImage(id, { tl: { col: 0, row: r - 1 }, ext: { width: w, height: h } });
+  };
+  // ค่าที่คำนวณไว้ล่วงหน้าเพื่อวาดกราฟ (สูตรในตารางยังคำนวณเองใน Excel)
+  const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+
+  for (const { y, m } of months) {
+    const nd = new Date(y, m, 0).getDate();
+    const short = TH_SHORT[m - 1] + (months.some(o => o.m === m && o.y !== y) ? " " + String(be(y)).slice(2) : "");
+    const full = TH_MONTH[m - 1], title = full + " " + be(y);
+    const first = 5, last = first + nd - 1;
+    // ================= ข้อมูล =================
+    const ws = wb.addWorksheet(short + " ข้อมูล");
+    ws.columns = [8, 7.5, 7.5, 7, 8, 17.5, 7.5, 7.5, 7, 8, 17.5, 29].map(w => ({ width: w }));
+    banner(ws, "บันทึกความดันโลหิต เดือน" + title, "กรอกเฉพาะตัวเลขสีน้ำเงิน (ตัวบน ตัวล่าง) และหมายเหตุ · วันที่ไม่ได้วัดให้เว้นว่าง ห้ามใส่ 0 · ช่องอื่นคำนวณให้อัตโนมัติ", "L");
+    ws.mergeCells("A3:A4"); ws.mergeCells("B3:F3"); ws.mergeCells("G3:K3"); ws.mergeCells("L3:L4");
+    cell(ws, "A3", "วันที่", F(11, true, C.navy), CEN);
+    cell(ws, "B3", "ความดันตอนเช้า", F(12, true, C.red), CEN);
+    cell(ws, "G3", "ความดันก่อนนอน", F(12, true, C.navy), CEN);
+    cell(ws, "L3", "หมายเหตุ", F(11, true, C.navy), CEN);
+    ["ตัวบน\n(SYS)", "ตัวล่าง\n(DIA)", "เฉลี่ย\n(MAP)", "ช่วงห่าง\n(PP)", "ระดับความดัน"].forEach((t, i) => {
+      cell(ws, [4, 2 + i], t, F(10, true, C.red), CEN); cell(ws, [4, 7 + i], t, F(10, true, C.navy), CEN);
+    });
+    ws.getRow(3).height = 24; ws.getRow(4).height = 36;
+    const mon = { amS: [], amD: [], pmS: [], pmD: [], daily: [] };
+    for (let d = 1; d <= nd; d++) {
+      const r = first + d - 1, k = y + "-" + pad(m) + "-" + pad(d), rec = days[k] || {};
+      cell(ws, [r, 1], new Date(Date.UTC(y, m - 1, d)), F(10.5), CEN, "dd/mm");
+      [[2, rec.am_s, rec.am_d], [7, rec.pm_s, rec.pm_d]].forEach(([b, s, di]) => {
+        const S = ws.getColumn(b).letter, D = ws.getColumn(b + 1).letter;
+        if (s != null) ws.getCell(r, b).value = s; if (di != null) ws.getCell(r, b + 1).value = di;
+        ws.getCell(r, b + 2).value = fm(`IF(${S}${r}="","",${D}${r}+(${S}${r}-${D}${r})/3)`);
+        ws.getCell(r, b + 3).value = fm(`IF(${S}${r}="","",${S}${r}-${D}${r})`);
+        ws.getCell(r, b + 4).value = fm(gradeF(S, D, r));
+        for (let c = b; c <= b + 4; c++) {
+          const inp = c <= b + 1;
+          cell(ws, [r, c], null, inp ? F(11, true, C.blue) : (c === b + 4 ? F(9.5) : F(10.5, false, "404040")), CEN, c === b + 2 ? "0" : undefined);
+        }
+      });
+      cell(ws, [r, 12], rec.note || null, F(9.5, false, C.blue), { horizontal: "left", vertical: "middle", shrinkToFit: true });
+      ws.getRow(r).height = 20;
+      if (rec.am_s != null) { mon.amS.push(rec.am_s); mon.amD.push(rec.am_d); }
+      if (rec.pm_s != null) { mon.pmS.push(rec.pm_s); mon.pmD.push(rec.pm_d); }
+      mon.daily.push({ d, am_s: rec.am_s, am_d: rec.am_d, pm_s: rec.pm_s, pm_d: rec.pm_d });
+    }
+    booktabs(ws, 3, last, 12, 2);
+    for (let r = 3; r <= last; r++) for (const c of [2, 7, 12]) {
+      const b = Object.assign({}, ws.getCell(r, c).border); b.left = side("thin", "9E9E9E"); ws.getCell(r, c).border = b;
+    }
+    for (let c = 1; c <= 12; c++) { const b = Object.assign({}, ws.getCell(3, c).border); b.top = thick; if (c >= 2 && c <= 11) b.bottom = mid; ws.getCell(3, c).border = b; }
+    gradeColors(ws, `F${first}:F${last}`, "F", first); gradeColors(ws, `K${first}:K${last}`, "K", first);
+    note(ws, last + 1, "หมายเหตุ: MAP (ความดันเฉลี่ยหลอดเลือดแดง) = ตัวล่าง + (ตัวบน − ตัวล่าง) ÷ 3 · PP (ช่วงห่างชีพจร) = ตัวบน − ตัวล่าง · ระดับความดันจัดตามแท็บ 'เกณฑ์' — สีแดง = ระดับ 3, สีส้ม = ระดับ 2, สีเหลืองเข้ม = ระดับ 1, สีเขียว = ต่ำกว่าระดับ 1", "L", 34);
+    ws.views = [{ state: "frozen", xSplit: 1, ySplit: 4, showGridLines: false }];
+    page(ws, `A1:L${last + 1}`, 1, "3:4"); ws.views = [{ state: "frozen", xSplit: 1, ySplit: 4, showGridLines: false }];
+
+    // ================= วิเคราะห์ =================
+    const an = wb.addWorksheet(short + " วิเคราะห์");
+    an.columns = [34, 14, 14, 14, 34].map(w => ({ width: w }));
+    const DS = `'${short} ข้อมูล'!`;
+    const R = c => `${DS}$${c}$${first}:$${c}$${last}`;
+    const A = `${DS}$A$${first}:$A$${last}`;
+    const allS = `${R("B")},${R("G")}`, allD = `${R("C")},${R("H")}`;
+    banner(an, "รายงานสรุปความดันโลหิต เดือน" + title, "วัดเองที่บ้าน · เปรียบเทียบกับเกณฑ์ความดันสูงเมื่อวัดที่บ้าน 135/85 mmHg · ใช้ประกอบการพบแพทย์ ไม่ใช่การวินิจฉัย · ช่องจะว่างจนกว่าจะมีข้อมูลในเดือนนี้", "E");
+    const cnt135 = `SUMPRODUCT(--(((${R("B")}>=${G}$B$13)+(${R("C")}>=${G}$C$13))>0))+SUMPRODUCT(--(((${R("G")}>=${G}$B$13)+(${R("H")}>=${G}$C$13))>0))`;
+    const cnt180 = `SUMPRODUCT(--(((${R("B")}>=${G}$B$14)+(${R("C")}>=${G}$C$14))>0))+SUMPRODUCT(--(((${R("G")}>=${G}$B$14)+(${R("H")}>=${G}$C$14))>0))`;
+    [["A", "A", "ค่าเฉลี่ยทั้งเดือน", `IF(COUNT(${allS})=0,"–",TEXT(AVERAGE(${allS}),"0")&"/"&TEXT(AVERAGE(${allD}),"0"))`, "ตัวบน/ตัวล่าง (mmHg)", C.navy],
+     ["B", "C", "เกินเกณฑ์ที่บ้าน 135/85", `IF(COUNT(${allS})=0,"–",(${cnt135})&" / "&COUNT(${allS}))`, "ครั้ง จากที่วัดทั้งหมด", C.orange],
+     ["D", "D", "ถึง 180/110", `IF(COUNT(${allS})=0,"–",${cnt180})`, "ครั้ง", C.red],
+     ["E", "E", "ค่าสูงสุดของเดือน", `IF(COUNT(${allS})=0,"–",MAX(${allS})&"/"&MAX(${allD}))`, "ตัวบนสูงสุด/ตัวล่างสูงสุด", C.red]
+    ].forEach(([c1, c2, label, f, capt, color]) => {
+      cell(an, c1 + "4", label, F(10, true, C.grey), CEN);
+      cell(an, c1 + "5", fm(f), F(20, true, color), CEN);
+      cell(an, c1 + "6", capt, F(9, false, C.grey), CEN);
+      const n1 = an.getColumn(c1).number, n2 = an.getColumn(c2).number;
+      for (const r of [4, 5, 6]) {
+        for (let c = n1; c <= n2; c++) an.getCell(r, c).border = Object.assign(r === 4 ? { top: side("thick", color) } : {}, r === 6 ? { bottom: hair } : {});
+        if (c1 !== c2) an.mergeCells(`${c1}${r}:${c2}${r}`);
+      }
+    });
+    an.getRow(3).height = 8; an.getRow(4).height = 22; an.getRow(5).height = 38; an.getRow(6).height = 20;
+    const st = { row: 8, t: 0, top: 0 };
+    const table = (t, hdr) => {
+      st.t++; caption(an, st.row, `ตารางที่ ${st.t}  ${t}`);
+      const r = st.row + 1;
+      hdr.forEach((h, i) => cell(an, [r, 1 + i], h, F(10.5, true, C.navy), i ? CEN : LFT));
+      an.getRow(r).height = 22; st.top = r; st.row = r + 1;
+    };
+    const line = (vals, fmts) => {
+      const r = st.row;
+      vals.forEach((v, i) => {
+        const val = typeof v === "string" && v.startsWith("=") ? fm(v) : (v === "" ? null : v);
+        cell(an, [r, 1 + i], val, F(10.5, false, i === 4 ? "404040" : C.ink), (i === 0 || i === 4) ? LFT : CEN, fmts && fmts[i] ? fmts[i] : undefined);
+      });
+      an.getRow(r).height = 19; st.row = r + 1; return r;
+    };
+    const endTable = (gap = 1) => { booktabs(an, st.top, st.row - 1, 5); st.row += gap; };
+    const trio = (fn, a, b, need = 1) => [`=IF(COUNT(${R(a)})<${need},"",${fn}(${R(a)}))`, `=IF(COUNT(${R(b)})<${need},"",${fn}(${R(b)}))`, `=IF(COUNT(${R(a)},${R(b)})<${need},"",${fn}(${R(a)},${R(b)}))`];
+    const H = ["รายการ", "เช้า", "ก่อนนอน", "รวม", "แปลผล"], f1 = "0.0";
+    table("ค่าเฉลี่ยและการกระจายตัวของความดันโลหิต (mmHg)", H);
+    const rs = line(["ตัวบน (SYS) เฉลี่ย", ...trio("AVERAGE", "B", "G"), ""], [0, f1, f1, f1]);
+    const rd = line(["ตัวล่าง (DIA) เฉลี่ย", ...trio("AVERAGE", "C", "H"), ""], [0, f1, f1, f1]);
+    [[rs, "B"], [rd, "C"]].forEach(([r, col]) => {
+      an.getCell(r, 5).value = fm(`IF(D${r}="","",IF(D${r}>=${G}$${col}$13,"สูงกว่าเกณฑ์ที่บ้าน "&${G}$${col}$13&" อยู่ "&TEXT(D${r}-${G}$${col}$13,"0")&" mmHg","อยู่ในเกณฑ์ที่บ้าน"))`);
+    });
+    line(["ค่าเฉลี่ยรวม (ตัวบน/ตัวล่าง)", ...["B", "C", "D"].map(c => `=IF(${c}${rs}="","",TEXT(${c}${rs},"0")&"/"&TEXT(${c}${rd},"0"))`),
+      `=IF(D${rs}="","",IF(OR(D${rs}>=${G}$B$4,D${rd}>=${G}$C$4),"เทียบได้กับระดับ 3",IF(OR(D${rs}>=${G}$B$5,D${rd}>=${G}$C$5),"เทียบได้กับระดับ 2",IF(OR(D${rs}>=${G}$B$6,D${rd}>=${G}$C$6),"เทียบได้กับระดับ 1","ต่ำกว่าระดับ 1"))))`]);
+    line(["ความดันเฉลี่ยหลอดเลือดแดง (MAP)", ...trio("AVERAGE", "D", "I"), "ค่าปกติโดยทั่วไปประมาณ 70–100"], [0, f1, f1, f1]);
+    const rpp = line(["ช่วงห่างชีพจร (PP) เฉลี่ย", ...trio("AVERAGE", "E", "J"), ""], [0, f1, f1, f1]);
+    an.getCell(rpp, 5).value = fm(`IF(D${rpp}="","",IF(D${rpp}>=${G}$B$15,"กว้างกว่า "&${G}$B$15&" ควรปรึกษาแพทย์","ไม่กว้างเกิน "&${G}$B$15))`);
+    line(["ส่วนเบี่ยงเบนมาตรฐาน (SD) ตัวบน", ...trio("STDEV", "B", "G", 2), "ยิ่งสูง ค่ายิ่งแกว่งมาก"], [0, f1, f1, f1]);
+    line(["ส่วนเบี่ยงเบนมาตรฐาน (SD) ตัวล่าง", ...trio("STDEV", "C", "H", 2), ""], [0, f1, f1, f1]);
+    const mm = (a, b) => { const rg = b ? `${R(a)},${R(b)}` : R(a); return `=IF(COUNT(${rg})=0,"",MAX(${rg})&" / "&MIN(${rg}))`; };
+    line(["ตัวบน สูงสุด / ต่ำสุด", mm("B"), mm("G"), mm("B", "G"), ""]);
+    line(["ตัวล่าง สูงสุด / ต่ำสุด", mm("C"), mm("H"), mm("C", "H"), ""]);
+    endTable();
+    table("จำนวนครั้งที่เกินเกณฑ์", H);
+    let r0 = st.row; const rn = line(["จำนวนครั้งที่วัด", `=COUNT(${R("B")})`, `=COUNT(${R("G")})`, `=B${r0}+C${r0}`, ""]);
+    const cnt = (s, d, a, b) => `=SUMPRODUCT(--(((${R(s)}>=${a})+(${R(d)}>=${b}))>0))`;
+    r0 = st.row; const ra = line(["ครั้งที่ ≥ 135/85 (เกณฑ์ที่บ้าน)", cnt("B", "C", G + "$B$13", G + "$C$13"), cnt("G", "H", G + "$B$13", G + "$C$13"), `=B${r0}+C${r0}`, ""]);
+    line(["ร้อยละที่เกินเกณฑ์ที่บ้าน", ...["B", "C", "D"].map(c => `=IF(${c}${rn}=0,"",${c}${ra}/${c}${rn})`), ""], [0, "0%", "0%", "0%"]);
+    r0 = st.row; const rc = line(["ครั้งที่ ≥ 180/110", cnt("B", "C", G + "$B$14", G + "$C$14"), cnt("G", "H", G + "$B$14", G + "$C$14"), `=B${r0}+C${r0}`, ""]);
+    an.getCell(rc, 5).value = fm(`IF(D${rn}=0,"",IF(D${rc}>0,"มี "&D${rc}&" ครั้ง ควรแจ้งแพทย์","ไม่มี"))`); an.getCell(rc, 5).font = F(10.5, true, C.red);
+    endTable();
+    table("การกระจายตามระดับความดัน (จำนวนครั้ง)", ["ระดับความดัน", "เช้า", "ก่อนนอน", "รวม", "สัดส่วนของที่วัดทั้งหมด"]);
+    const gFirst = st.row;
+    for (let i = 4; i <= 9; i++) {
+      r0 = st.row;
+      line([`=${G}A${i}`, `=COUNTIF(${R("F")},A${r0})`, `=COUNTIF(${R("K")},A${r0})`, `=B${r0}+C${r0}`,
+        `=IF(COUNT(${allS})=0,"",REPT("▇",ROUND(D${r0}/COUNT(${allS})*16,0))&"  "&TEXT(D${r0}/COUNT(${allS}),"0%"))`]);
+      an.getCell(r0, 5).font = F(10.5, false, C.orange);
+    }
+    const gLast = st.row - 1; gradeColors(an, `A${gFirst}:A${gLast}`, "A", gFirst);
+    endTable(0);
+    const p1 = st.row; an.getRow(p1).addPageBreak();
+    st.row = p1 + 2;
+    table("เปรียบเทียบความดันตอนเช้ากับก่อนนอน", ["รายการ", "เช้า − ก่อนนอน", "", "", "แปลผล"]);
+    [["ตัวบน (SYS)", rs], ["ตัวล่าง (DIA)", rd]].forEach(([lbl, r_]) => {
+      r0 = st.row;
+      line([lbl, `=IF(OR(B${r_}="",C${r_}=""),"",B${r_}-C${r_})`, "", "",
+        `=IF(B${r0}="","",IF(B${r0}>0,"ตอนเช้าสูงกว่า "&TEXT(B${r0},"0.0")&" mmHg",IF(B${r0}<0,"ก่อนนอนสูงกว่า "&TEXT(-B${r0},"0.0")&" mmHg","เท่ากัน")))`], [0, "+0.0;-0.0;0.0"]);
+    });
+    endTable();
+    table("แนวโน้มรายสัปดาห์ (ค่าเฉลี่ย ตัวบน/ตัวล่าง)", ["ช่วง", "เริ่ม", "สิ้นสุด", "เช้า", "ก่อนนอน"]);
+    const fd = mon.daily.find(x => x.am_s != null || x.pm_s != null);
+    const wk = [[1, 7], [8, 14], [15, 21], [22, nd]];
+    const weekly = [];
+    wk.forEach(([s, e], i) => {
+      r0 = st.row;
+      const av = c => `AVERAGEIFS(${R(c)},${A},">="&B${r0},${A},"<="&C${r0})`;
+      line([`สัปดาห์ที่ ${i + 1}`, new Date(Date.UTC(y, m - 1, s)), new Date(Date.UTC(y, m - 1, e)),
+        `=IFERROR(TEXT(${av("B")},"0")&"/"&TEXT(${av("C")},"0"),"")`, `=IFERROR(TEXT(${av("G")},"0")&"/"&TEXT(${av("H")},"0"),"")`], [0, "dd/mm", "dd/mm"]);
+      an.getCell(r0, 5).alignment = CEN;
+      const seg = mon.daily.filter(x => x.d >= s && x.d <= e);
+      const pick = k => seg.map(x => x[k]).filter(v => v != null);
+      weekly.push({ label: "สัปดาห์ " + (i + 1), amS: avg(pick("am_s")), pmS: avg(pick("pm_s")), amD: avg(pick("am_d")), pmD: avg(pick("pm_d")),
+        allS: avg(pick("am_s").concat(pick("pm_s"))), allD: avg(pick("am_d").concat(pick("pm_d"))) });
+    });
+    line(["แนวโน้มตัวบน (mmHg/สัปดาห์)", `=IF(COUNT(${R("B")})<2,"",SLOPE(${R("B")},${A})*7)`, `=IF(COUNT(${R("G")})<2,"",SLOPE(${R("G")},${A})*7)`, "", "ค่าบวก = มีแนวโน้มสูงขึ้น, ค่าลบ = ลดลง"], [0, "+0.0;-0.0;0.0", "+0.0;-0.0;0.0"]);
+    endTable();
+    table("เปรียบเทียบวันที่มีอาการเครียดสูงกับวันอื่น", ["กลุ่ม", "เช้า", "ก่อนนอน", "จำนวนวัน", ""]);
+    const key = `"${STRESS}"`;
+    const avn = (c, crit) => `AVERAGEIFS(${R(c)},${R("L")},${crit})`;
+    [["วันที่บันทึกว่าเครียดสูง", key, `=COUNTIF(${R("L")},${key})`],
+     ["วันอื่น ๆ", `"<>"&${key}`, `=SUMPRODUCT((${R("L")}<>${key})*(((${R("B")}<>"")+(${R("G")}<>""))>0))`]].forEach(([lbl, crit, cn]) => {
+      line([lbl, `=IFERROR(TEXT(${avn("B", crit)},"0")&"/"&TEXT(${avn("C", crit)},"0"),"–")`, `=IFERROR(TEXT(${avn("G", crit)},"0")&"/"&TEXT(${avn("H", crit)},"0"),"–")`, cn, ""]);
+    });
+    endTable(0);
+    note(an, st.row, "ถ้ามีวันที่บันทึกว่าเครียดน้อยกว่าประมาณ 7 วัน ให้ใช้ดูแนวโน้มคร่าว ๆ เท่านั้น ยังสรุปทางสถิติไม่ได้"); st.row += 2;
+    const rf1 = st.row;
+    addImg(an, { kind: "bars", w: 720, h: 300, categories: weekly.map(w => w.label),
+      bars: [{ name: "เช้า ตัวบน", color: "#B71C1C", values: weekly.map(w => w.amS) }, { name: "ก่อนนอน ตัวบน", color: "#1F3864", values: weekly.map(w => w.pmS) },
+             { name: "เช้า ตัวล่าง", color: "#E57373", values: weekly.map(w => w.amD) }, { name: "ก่อนนอน ตัวล่าง", color: "#7986CB", values: weekly.map(w => w.pmD) }],
+      ymin: 0, ymax: 200, step: 40, hlines: [135, 85] }, rf1, 680, 283);
+    const cap1 = rf1 + 15;
+    caption(an, cap1, `รูปที่ 1  ค่าเฉลี่ยความดันรายสัปดาห์ เดือน${title} เทียบเกณฑ์ที่บ้าน (เส้นประ)`, 10.5);
+    note(an, cap1 + 1, SOURCE, "E", 30);
+    an.getRow(cap1 + 1).addPageBreak();
+    const rf2 = cap1 + 3;
+    addImg(an, { kind: "daily", w: 720, h: 380, nd, daily: mon.daily, ymin: 60, ymax: 200, step: 20, hlines: [135, 85] }, rf2, 680, 359);
+    const cap2 = rf2 + 19;
+    caption(an, cap2, `รูปที่ 2  ความดันโลหิตรายวัน เดือน${title} (จุดทึบ = เช้า, จุดโปร่ง = ก่อนนอน, เส้นประ = เกณฑ์ที่บ้าน)`, 10.5);
+    const rf3 = cap2 + 2;
+    const gradeCounts = ["g3", "g2", "g1", "x", "n", "o"].map(() => [0, 0]);
+    const gIdx = (s, d) => s >= 180 || d >= 110 ? 0 : s >= 160 || d >= 100 ? 1 : s >= 140 || d >= 90 ? 2 : s >= 130 || d >= 85 ? 3 : s >= 120 || d >= 80 ? 4 : 5;
+    mon.daily.forEach(x => { if (x.am_s != null) gradeCounts[gIdx(x.am_s, x.am_d)][0]++; if (x.pm_s != null) gradeCounts[gIdx(x.pm_s, x.pm_d)][1]++; });
+    addImg(an, { kind: "grades", w: 720, h: 270, labels: ["ระดับ 3 (สูงรุนแรง)", "ระดับ 2 (สูงปานกลาง)", "ระดับ 1 (สูงเล็กน้อย)", "สูงกว่าปกติเล็กน้อย", "ปกติ", "เหมาะสม"], counts: gradeCounts }, rf3, 680, 255);
+    const cap3 = rf3 + 14;
+    caption(an, cap3, `รูปที่ 3  จำนวนครั้งในแต่ละระดับความดัน เดือน${title} แยกเช้าและก่อนนอน`, 10.5);
+    note(an, cap3 + 1, SOURCE + " · ระดับความดันตามแนวทางสมาคมความดันโลหิตสูงแห่งประเทศไทย พ.ศ. 2562", "E", 30);
+    page(an, `A1:E${cap3 + 1}`, 0);
+    info.push({ y, m, short, full: full + (months.length > 12 ? " " + be(y) : ""), rs, rd, rn, rc, weekly,
+      avgS: avg(mon.amS.concat(mon.pmS)), avgD: avg(mon.amD.concat(mon.pmD)) });
+  }
+
+  // ================= เกณฑ์ =================
+  const CR = wb.addWorksheet("เกณฑ์");
+  CR.columns = [44, 17, 17].map(w => ({ width: w }));
+  banner(CR, "เกณฑ์อ้างอิงที่ใช้ในการคำนวณ", "แก้ตัวเลขสีน้ำเงินได้ ทุกแท็บจะคำนวณใหม่ตาม", "C");
+  ["ระดับความดัน", "ตัวบน (SYS) ≥", "ตัวล่าง (DIA) ≥"].forEach((t, i) => cell(CR, [3, i + 1], t, F(10.5, true, C.navy), i ? CEN : LFT));
+  CR.getRow(3).height = 22;
+  [["ระดับ 3 (สูงรุนแรง)", 180, 110], ["ระดับ 2 (สูงปานกลาง)", 160, 100], ["ระดับ 1 (สูงเล็กน้อย)", 140, 90],
+   ["สูงกว่าปกติเล็กน้อย", 130, 85], ["ปกติ", 120, 80], ["เหมาะสม", 0, 0]].forEach((row, j) => {
+    const r = 4 + j;
+    row.forEach((v, i) => cell(CR, [r, i + 1], v, F(11, false, i && r < 9 ? C.blue : C.ink), i ? CEN : LFT, (r === 9 && i) ? `"ต่ำกว่า ${i === 1 ? 120 : 80}"` : undefined));
+    CR.getRow(r).height = 20;
+  });
+  booktabs(CR, 3, 9, 3); gradeColors(CR, "A4:A9", "A", 4);
+  note(CR, 10, "จัดระดับตามค่าที่สูงกว่าระหว่างตัวบนกับตัวล่าง", "C");
+  cell(CR, "A12", "เกณฑ์อื่น", F(11.5, true, C.navy));
+  [["เกณฑ์ความดันสูงเมื่อวัดที่บ้าน (ค่าเฉลี่ย)", 135, 85], ["ระดับที่ต้องรีบพบแพทย์", 180, 110], ["ช่วงห่างชีพจร (PP) กว้าง ≥", 60, null]].forEach((row, j) => {
+    const r = 13 + j; row.forEach((v, i) => cell(CR, [r, i + 1], v, F(11, false, i ? C.blue : C.ink), i ? CEN : LFT)); CR.getRow(r).height = 20;
+  });
+  booktabs(CR, 13, 15, 3, 0);
+  note(CR, 17, "ที่มา: แนวทางการรักษาโรคความดันโลหิตสูงในเวชปฏิบัติทั่วไป พ.ศ. 2562 (สมาคมความดันโลหิตสูงแห่งประเทศไทย) ซึ่งแบ่งระดับแบบเดียวกับ ESH/ESC · ระดับ 1–3 ออกแบบไว้สำหรับค่าที่วัดในคลินิก ค่าที่วัดเองที่บ้านใช้เกณฑ์ค่าเฉลี่ย ≥135/85", "C", 48);
+  page(CR, "A1:C17", 1);
+
+  // ================= สรุปรวม =================
+  const sm = summary;
+  sm.columns = [17, 10, 10, 10, 10, 20, 27].map(w => ({ width: w }));
+  const span = info.length ? `${TH_SHORT[info[0].m - 1]}–${TH_SHORT[info[info.length - 1].m - 1]} ${be(info[info.length - 1].y)}` : "";
+  banner(sm, "รายงานภาพรวมความดันโลหิต " + span, "ค่าเฉลี่ยรายเดือนและรายสัปดาห์ วัดเองที่บ้าน · เป้าหมายเมื่อวัดที่บ้านต่ำกว่า 135/85 mmHg · ใช้ประกอบการพบแพทย์", "G");
+  caption(sm, 4, "ตารางที่ 1  ค่าเฉลี่ยความดันโลหิตรายเดือน");
+  ["เดือน", "ตัวบน\nเฉลี่ย", "ตัวล่าง\nเฉลี่ย", "จำนวน\nครั้งที่วัด", "ครั้งที่\n≥ 180/110", "ระดับโดยเฉลี่ย", "หมายเหตุ"].forEach((h, i) => cell(sm, [5, i + 1], h, F(10.5, true, C.navy), i ? CEN : LFT));
+  sm.getRow(5).height = 36;
+  info.forEach((mi, j) => {
+    const r = 6 + j, AN = `'${mi.short} วิเคราะห์'!`;
+    cell(sm, [r, 1], TH_MONTH[mi.m - 1] + " " + be(mi.y), F(11, true), LFT);
+    cell(sm, [r, 2], fm(`${AN}D${mi.rs}`), F(12, true, C.red), CEN, "0");
+    cell(sm, [r, 3], fm(`${AN}D${mi.rd}`), F(12, true, C.navy), CEN, "0");
+    cell(sm, [r, 4], fm(`${AN}D${mi.rn}`), F(11), CEN);
+    cell(sm, [r, 5], fm(`${AN}D${mi.rc}`), F(11, false, C.red), CEN);
+    cell(sm, [r, 6], fm(`IF(B${r}="","",INDEX(${G}$A$4:$A$9,MIN(COUNTIF(${G}$B$4:$B$9,">"&B${r}),COUNTIF(${G}$C$4:$C$9,">"&C${r}))+1))`), F(10), CEN);
+    const notes = Object.keys(days).filter(k => k.startsWith(mi.y + "-" + pad(mi.m)) && /ยา|โรงพยาบาล|หมอ/.test(days[k].note || "")).slice(-1)
+      .map(k => +k.slice(8) + " " + TH_SHORT[mi.m - 1] + " " + days[k].note);
+    cell(sm, [r, 7], notes[0] || null, F(10, false, C.blue), { horizontal: "left", vertical: "middle", wrapText: true });
+    sm.getRow(r).height = notes[0] && notes[0].length > 22 ? 34 : 24;
+  });
+  const sLast = 5 + info.length;
+  booktabs(sm, 5, sLast, 7); gradeColors(sm, `F6:F${sLast}`, "F", 6);
+  note(sm, sLast + 1, "เดือนที่ยังไม่มีข้อมูลจะเว้นว่างไว้ · หมายเหตุสีน้ำเงินพิมพ์เพิ่มเองได้", "G");
+  const rS1 = sLast + 3;
+  addImg(sm, { kind: "bars", w: 720, h: 300, categories: info.map(i => TH_MONTH[i.m - 1]),
+    bars: [{ name: "ตัวบนเฉลี่ย", color: "#B71C1C", values: info.map(i => i.avgS) }, { name: "ตัวล่างเฉลี่ย", color: "#1F3864", values: info.map(i => i.avgD) }],
+    ymin: 0, ymax: 200, step: 40, hlines: [135, 85], labels: true }, rS1, 680, 283);
+  caption(sm, rS1 + 15, "รูปที่ 1  ค่าเฉลี่ยความดันรายเดือนเทียบเกณฑ์ที่บ้าน 135/85 (เส้นประ)", 10.5);
+  const rS2 = rS1 + 17;
+  const wk = []; info.forEach(i => i.weekly.forEach((w, k) => wk.push({ label: TH_SHORT[i.m - 1] + " ส." + (k + 1), s: w.allS, d: w.allD })));
+  addImg(sm, { kind: "bars", w: 720, h: 300, categories: wk.map(w => w.label), small: true,
+    bars: [{ name: "ตัวบนเฉลี่ย", color: "#B71C1C", values: wk.map(w => w.s) }, { name: "ตัวล่างเฉลี่ย", color: "#1F3864", values: wk.map(w => w.d) }],
+    ymin: 0, ymax: 200, step: 40, hlines: [135, 85] }, rS2, 680, 283);
+  caption(sm, rS2 + 15, "รูปที่ 2  ค่าเฉลี่ยความดันรายสัปดาห์ต่อเนื่อง (รวมเช้าและก่อนนอน)", 10.5);
+  note(sm, rS2 + 16, SOURCE + " · วิธีอ่าน: แท่งสีแดง = ตัวบน แท่งสีน้ำเงิน = ตัวล่าง เส้นประ = เกณฑ์ที่บ้าน 135 และ 85 ถ้าการรักษาได้ผล แท่งควรค่อย ๆ ลดลงมาใกล้หรือต่ำกว่าเส้นประ", "G", 34);
+  page(sm, `A1:G${rS2 + 16}`, 1);
+  // ย้ายแท็บเกณฑ์ไปท้ายสุด
+  const crIdx = wb.worksheets.indexOf(CR); wb.worksheets.splice(crIdx, 1); wb.worksheets.push(CR);
+  wb.worksheets.forEach((w, i) => { w.orderNo = i; });
+  return wb;
+}
+
+/* วาดกราฟแบบรายงานวิชาการลงผืนผ้าใบ แล้วคืนค่า base64 PNG (ใช้ในเบราว์เซอร์) */
+function drawA4Chart(spec) {
+  const S = 2, W = spec.w, H = spec.h;
+  const cv = document.createElement("canvas"); cv.width = W * S; cv.height = H * S;
+  const g = cv.getContext("2d"); g.scale(S, S);
+  const FONT = '"IBM Plex Sans Thai Looped","Sarabun",Tahoma,sans-serif';
+  g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, W, H);
+  const txt = (t, x, y, size = 12, color = "#404040", align = "center", bold = false) => {
+    g.font = (bold ? "600 " : "") + size + "px " + FONT; g.fillStyle = color; g.textAlign = align; g.textBaseline = "middle"; g.fillText(t, x, y);
+  };
+  const legend = (items, y) => {
+    g.font = "12px " + FONT; let total = 0; const ws = items.map(it => g.measureText(it.name).width + 34); total = ws.reduce((a, b) => a + b, 0);
+    let x = (W - total) / 2;
+    items.forEach((it, i) => {
+      if (it.dash) { g.strokeStyle = it.color; g.setLineDash([5, 4]); g.lineWidth = 1.6; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 20, y); g.stroke(); g.setLineDash([]); }
+      else if (it.dot) { g.fillStyle = it.color; g.beginPath(); g.arc(x + 10, y, 4, 0, 7); g.fill(); g.strokeStyle = it.color; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 20, y); g.stroke(); }
+      else { g.fillStyle = it.color; g.fillRect(x, y - 6, 20, 12); }
+      txt(it.name, x + 26, y, 12, "#262626", "left"); x += ws[i];
+    });
+  };
+  if (spec.kind === "grades") {
+    const L = 170, R = 30, T = 20, B = 50, n = spec.labels.length;
+    const max = Math.max(4, ...spec.counts.map(c => c[0] + c[1]));
+    const step = max > 20 ? 5 : max > 10 ? 2 : 1, top = Math.ceil(max / step) * step;
+    const X = v => L + v * (W - L - R) / top, rowH = (H - T - B) / n;
+    for (let v = 0; v <= top; v += step) { g.strokeStyle = "#E3E3E3"; g.lineWidth = 1; g.beginPath(); g.moveTo(X(v), T); g.lineTo(X(v), H - B); g.stroke(); txt(String(v), X(v), H - B + 14, 11, "#595959"); }
+    const cols = ["#B71C1C", "#1F3864"];
+    spec.labels.forEach((lb, i) => {
+      const yc = T + rowH * (i + 0.5); txt(lb, L - 10, yc, 12, "#262626", "right");
+      let x0 = 0; spec.counts[i].forEach((c, k) => { if (!c) return; g.fillStyle = cols[k]; g.fillRect(X(x0), yc - rowH * 0.32, X(x0 + c) - X(x0), rowH * 0.64);
+        if (X(x0 + c) - X(x0) > 18) txt(String(c), (X(x0) + X(x0 + c)) / 2, yc, 11, "#FFFFFF", "center", true); x0 += c; });
+    });
+    g.strokeStyle = "#7F7F7F"; g.beginPath(); g.moveTo(L, T); g.lineTo(L, H - B); g.stroke();
+    legend([{ name: "เช้า", color: cols[0] }, { name: "ก่อนนอน", color: cols[1] }], H - 14);
+    return cv.toDataURL("image/png").split(",")[1];
+  }
+  const L = 52, R = 14, T = 16, B = spec.small ? 66 : 56;
+  const Y = v => T + (spec.ymax - Math.min(Math.max(v, spec.ymin), spec.ymax)) * (H - T - B) / (spec.ymax - spec.ymin);
+  for (let v = spec.ymin; v <= spec.ymax; v += spec.step) { g.strokeStyle = "#E3E3E3"; g.lineWidth = 1; g.beginPath(); g.moveTo(L, Y(v)); g.lineTo(W - R, Y(v)); g.stroke(); txt(String(v), L - 8, Y(v), 11, "#595959", "right"); }
+  g.save(); g.translate(14, (T + H - B) / 2); g.rotate(-Math.PI / 2); txt("ความดันโลหิต (mmHg)", 0, 0, 11, "#404040", "center", true); g.restore();
+  const items = [];
+  if (spec.kind === "bars") {
+    const n = spec.categories.length, slot = (W - L - R) / n, nb = spec.bars.length, bw = slot * 0.78 / nb;
+    spec.bars.forEach((b, k) => {
+      items.push({ name: b.name, color: b.color });
+      b.values.forEach((v, i) => { if (v == null) return; const x = L + slot * i + slot * 0.11 + bw * k; g.fillStyle = b.color; g.fillRect(x, Y(v), bw - 1, Y(spec.ymin) - Y(v));
+        if (spec.labels) txt(String(Math.round(v)), x + bw / 2, Y(v) - 9, 11, "#404040"); });
+    });
+    spec.categories.forEach((c, i) => {
+      const x = L + slot * (i + 0.5);
+      if (spec.small) { g.save(); g.translate(x, H - B + 8); g.rotate(-Math.PI / 4); txt(c, 0, 0, 10, "#404040", "right"); g.restore(); }
+      else txt(c, x, H - B + 14, 12, "#404040");
+    });
+  } else {
+    const nd = spec.nd, X = d => L + (d - 1) * (W - L - R) / Math.max(nd - 1, 1);
+    [1, 5, 10, 15, 20, 25, nd].forEach(d => txt(String(d), X(d), H - B + 14, 11, "#595959"));
+    txt("วันที่", (L + W - R) / 2, H - B + 30, 11, "#404040", "center", true);
+    [["am_s", "#B71C1C", 1], ["pm_s", "#B71C1C", 0], ["am_d", "#3949AB", 1], ["pm_d", "#3949AB", 0]].forEach(([k, col, fill]) => {
+      g.strokeStyle = col; g.globalAlpha = fill ? 0.95 : 0.6; g.lineWidth = fill ? 2 : 1.5; g.beginPath(); let on = false;
+      spec.daily.forEach(p => { const v = p[k]; if (v == null) { on = false; return; } const x = X(p.d), y = Y(v); on ? g.lineTo(x, y) : g.moveTo(x, y); on = true; });
+      g.stroke(); g.globalAlpha = 1;
+      spec.daily.forEach(p => { const v = p[k]; if (v == null) return; g.beginPath(); g.arc(X(p.d), Y(v), 3.2, 0, 7); g.fillStyle = fill ? col : "#FFFFFF"; g.fill(); g.strokeStyle = col; g.lineWidth = 1.5; g.stroke(); });
+    });
+    items.push({ name: "ตัวบน", color: "#B71C1C", dot: 1 }, { name: "ตัวล่าง", color: "#3949AB", dot: 1 });
+  }
+  spec.hlines.forEach(v => { g.strokeStyle = "#7F7F7F"; g.lineWidth = 1.3; g.setLineDash([6, 4]); g.beginPath(); g.moveTo(L, Y(v)); g.lineTo(W - R, Y(v)); g.stroke(); g.setLineDash([]);
+    txt(String(v), W - R - 2, Y(v) - 8, 10, "#595959", "right"); });
+  items.push({ name: "เกณฑ์ที่บ้าน 135 / 85", color: "#7F7F7F", dash: 1 });
+  g.strokeStyle = "#7F7F7F"; g.lineWidth = 1; g.beginPath(); g.moveTo(L, T); g.lineTo(L, Y(spec.ymin)); g.lineTo(W - R, Y(spec.ymin)); g.stroke();
+  legend(items, H - 12);
+  return cv.toDataURL("image/png").split(",")[1];
+}
+
+
+</script>
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const GRADES = [ // ตัวบน ≥, ตัวล่าง ≥, ชื่อ, class
+    [180,110,"ระดับ 3 (สูงรุนแรง)","g3"],[160,100,"ระดับ 2 (สูงปานกลาง)","g2"],[140,90,"ระดับ 1 (สูงเล็กน้อย)","g1"],
+    [130,85,"สูงกว่าปกติเล็กน้อย","g0"],[120,80,"ปกติ","g0"],[0,0,"เหมาะสม","g0"]];
+  const grade = (s,d) => GRADES.find(g => s>=g[0] || d>=g[1]);
+  const pad = n => String(n).padStart(2,"0");
+  const iso = dt => dt.getFullYear()+"-"+pad(dt.getMonth()+1)+"-"+pad(dt.getDate());
+  const fromIso = s => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+  const thDate = (s,opt) => fromIso(s).toLocaleDateString("th-TH",opt||{day:"numeric",month:"short",year:"numeric"});
+  const thMonth = (y,m) => new Date(y,m,1).toLocaleDateString("th-TH",{month:"long",year:"numeric"});
+
+  const state = { days:{}, loaded:false, period:(new Date().getHours()<14?"am":"pm"), date:iso(new Date()),
+                  view:{y:new Date().getFullYear(), m:new Date().getMonth()}, editing:false, db:null, canWrite:true };
+
+
+  // ---------- คุณหมอพูด ----------
+  function face(f){ ["mHappy","mOk","mWorry"].forEach(id=>{ $(id).style.display = id==="m"+f ? "" : "none"; }); }
+  function say(text, f, hop){ $("bubble").textContent=text; face(f||"Happy");
+    if(hop){ const d=$("doc"); d.classList.remove("bounce"); d.getBoundingClientRect(); requestAnimationFrame(()=>d.classList.add("bounce")); } }
+  function idleTalk(){
+    if(Date.now()<(state.hold||0)) return;
+    const t=state.days[iso(new Date())]||{}; const h=new Date().getHours();
+    if(t.am_s!=null && t.pm_s!=null) return say("คุณเติมวัดครบทั้งเช้าและก่อนนอนแล้ว เก่งมากครับ!", "Happy");
+    if(t.am_s==null && h<14) return say("อรุณสวัสดิ์ครับคุณเติม ก่อนวัดนั่งพักสัก 5 นาทีนะครับ", "Happy");
+    if(t.pm_s==null && h>=17) return say("คุณเติมครับ ก่อนนอนอย่าลืมวัดความดันนะครับ", "Ok");
+    return say("สวัสดีครับคุณเติม วันนี้วัดความดันหรือยังครับ?", "Happy");
+  }
+  function talkFor(s,d){
+    if(s>=180||d>=110) return say("คุณเติมครับ ค่านี้สูงมาก นั่งพักแล้ววัดซ้ำอีกครั้งนะครับ", "Worry");
+    if(s>=135||d>=85) return say("ยังสูงกว่าเป้าหมาย 135/85 อยู่ครับคุณเติม กินยาตามที่หมอสั่งนะครับ", "Ok");
+    return say("เยี่ยมเลยคุณเติม! ค่านี้อยู่ในเป้าหมายครับ", "Happy", true);
+  }
+
+  // ---------- ช่องกรอก ----------
+  function setPeriod(p){ state.period=p; $("btnAm").setAttribute("aria-pressed",p==="am"); $("btnPm").setAttribute("aria-pressed",p==="pm"); fillFromExisting(); }
+  $("btnAm").onclick=()=>setPeriod("am"); $("btnPm").onclick=()=>setPeriod("pm");
+  $("date").value=state.date; $("date").max=iso(new Date());
+  $("date").onchange=()=>{ if($("date").value){ state.date=$("date").value; fillFromExisting(); } };
+  function fillFromExisting(){
+    const d=state.days[state.date]||{}; const s=d[state.period+"_s"], di=d[state.period+"_d"];
+    const has = s!=null;
+    $("sys").value = has? s : ""; $("dia").value = has? (di??"") : "";
+    $("note").value = d.note||"";
+    $("editRow").hidden = !has;
+    $("entryHeading").textContent = has? "แก้ไขค่า "+(state.period==="am"?"ตอนเช้า":"ก่อนนอน")+" "+thDate(state.date,{day:"numeric",month:"short"}) : "บันทึกค่าความดัน";
+    validate();
+  }
+  function nums(){ const s=parseInt($("sys").value,10), d=parseInt($("dia").value,10); return {s,d}; }
+  function validate(){
+    const {s,d}=nums(); const msg=$("formMsg"); let ok=false; msg.hidden=true; msg.className="msg"; $("liveChip").innerHTML="";
+    if($("sys").value && $("dia").value){
+      if(isNaN(s)||isNaN(d)||s<60||s>260||d<30||d>160){ msg.hidden=false; msg.classList.add("info"); msg.textContent="ตัวเลขดูไม่ปกติ ตัวบนควรอยู่ระหว่าง 60–260 และตัวล่าง 30–160 ลองตรวจอีกครั้ง"; }
+      else if(d>=s){ msg.hidden=false; msg.classList.add("info"); msg.textContent="ตัวล่างต้องน้อยกว่าตัวบน ลองสลับช่องดูครับ"; }
+      else {
+        ok=true; talkFor(s,d); const g=grade(s,d); const c=document.createElement("span"); c.className="chip "+g[3]; c.textContent=g[2]; $("liveChip").appendChild(c);
+        if(s>=180||d>=110){ msg.hidden=false; msg.classList.add("warn");
+          msg.textContent="ค่านี้สูงมาก นั่งพัก 5 นาทีแล้ววัดซ้ำ ถ้ายังสูงพร้อมปวดหัวรุนแรง เจ็บหน้าอก ตามัว หรือแขนขาอ่อนแรง ให้ไปโรงพยาบาลทันที"; }
+      }
+    }
+    if(!ok && (!$("sys").value || !$("dia").value)) idleTalk();
+    $("save").disabled = !ok || !state.db || !state.canWrite;
+    return ok;
+  }
+  ["sys","dia"].forEach(id=>$(id).addEventListener("input",e=>{
+    e.target.value=e.target.value.replace(/\D/g,"").slice(0,3);
+    if(id==="sys" && e.target.value.length===3) $("dia").focus();
+    validate();
+  }));
+
+  async function writeDay(date, body){
+    const ref = state.db.collection("readings").doc(date);
+    const clean = {}; for(const k in body){ if(body[k]!==undefined && body[k]!==null && body[k]!=="") clean[k]=body[k]; }
+    clean.date = date; clean.updated = new Date().toISOString();
+    const hasValue = ["am_s","pm_s","note"].some(k=>clean[k]!=null);
+    if(hasValue) await ref.set(clean); else await ref.delete();
+  }
+  $("save").onclick=async()=>{
+    if(!validate()) return;
+    const {s,d}=nums(); const prev=Object.assign({},state.days[state.date]||{});
+    prev[state.period+"_s"]=s; prev[state.period+"_d"]=d; prev.note=$("note").value.trim();
+    $("save").disabled=true; $("save").textContent="กำลังบันทึก…";
+    try{ await writeDay(state.date, prev); toast("บันทึกแล้ว "+s+"/"+d); resetToToday(); state.hold=Date.now()+6000; say(s<135&&d<85? "บันทึกแล้วครับ ค่าดีมาก รักษาไว้นะครับคุณเติม!" : "บันทึกแล้วครับ คุณเติมวัดสม่ำเสมอแบบนี้ดีมากเลย", s<135&&d<85?"Happy":"Ok", true); }
+    catch(e){ showErr(e); }
+    finally{ $("save").textContent="บันทึก"; validate(); }
+  };
+  $("del").onclick=async()=>{
+    const prev=Object.assign({},state.days[state.date]||{}); delete prev[state.period+"_s"]; delete prev[state.period+"_d"];
+    try{ await writeDay(state.date, prev); toast("ลบค่าแล้ว"); resetToToday(); } catch(e){ showErr(e); }
+  };
+  $("cancelEdit").onclick=resetToToday;
+  function resetToToday(){
+    state.date=iso(new Date()); $("date").value=state.date;
+    const t=state.days[state.date]||{}; setPeriod(t.am_s==null?"am":(t.pm_s==null?"pm":state.period));
+  }
+  function showErr(e){
+    const msg=$("formMsg"); msg.hidden=false; msg.className="msg warn";
+    msg.textContent = (e&&e.code==="invalid_argument") ? "บัญชีนี้ไม่มีสิทธิ์บันทึก เฉพาะเจ้าของสมุดเท่านั้นที่บันทึกได้" :
+                      (e&&e.code==="quota_exceeded") ? "พื้นที่เก็บข้อมูลเต็ม" : "บันทึกไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วลองกดบันทึกอีกครั้ง";
+  }
+  let tt; function toast(t){ const el=$("toast"); el.textContent=t; el.hidden=false; clearTimeout(tt); tt=setTimeout(()=>el.hidden=true,2200); }
+
+  // ---------- แสดงผล ----------
+  function readingHTML(s,d){
+    if(s==null) return '<span class="x">ยังไม่ได้วัด</span>';
+    return '<span class="s">'+s+'</span><span class="x">/</span><span class="d">'+(d??"–")+'</span>';
+  }
+  function renderToday(){
+    const t=state.days[iso(new Date())]||{};
+    $("todayLabel").textContent = new Date().toLocaleDateString("th-TH",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+" · เป้าหมายต่ำกว่า 135/85";
+    $("todaySlots").innerHTML = ["am","pm"].map(p=>{
+      const s=t[p+"_s"], d=t[p+"_d"]; const g = s!=null? grade(s,d) : null;
+      return '<div class="slot '+p+(s!=null?" done":"")+'"><span class="label">'+(p==="am"?"☀ ตอนเช้า":"☾ ก่อนนอน")+'</span>'+
+             '<span class="reading">'+readingHTML(s,d)+'</span>'+(g?'<span><span class="chip '+g[3]+'">'+g[2]+'</span></span>':"")+'</div>';
+    }).join("");
+  }
+  function monthKeys(){
+    const {y,m}=state.view; const pre=y+"-"+pad(m+1)+"-";
+    return Object.keys(state.days).filter(k=>k.startsWith(pre)).sort();
+  }
+  function renderMonth(){
+    const {y,m}=state.view; $("monthTitle").textContent="สรุป"+thMonth(y,m);
+    const now=new Date(); $("nextM").disabled = (y>now.getFullYear()) || (y===now.getFullYear() && m>=now.getMonth());
+    const keys=monthKeys(); const S=[],D=[]; let over=0, sev=0;
+    keys.forEach(k=>{ const r=state.days[k]; ["am","pm"].forEach(p=>{ const s=r[p+"_s"], d=r[p+"_d"]; if(s!=null){ S.push(s); D.push(d);
+      if(s>=135||d>=85) over++; if(s>=180||d>=110) sev++; }}); });
+    const avg=a=>a.length? Math.round(a.reduce((x,y)=>x+y,0)/a.length) : null;
+    const aS=avg(S), aD=avg(D); const g = aS!=null? grade(aS,aD):null;
+    $("stats").innerHTML =
+      stat("ค่าเฉลี่ยทั้งเดือน", aS!=null? '<span style="color:var(--sys)">'+aS+'</span>/<span style="color:var(--dia)">'+aD+'</span>' : "–", g? '<span class="chip '+g[3]+'">'+g[2]+'</span>':"ยังไม่มีข้อมูล")+
+      stat("จำนวนครั้งที่วัด", S.length||"–", keys.length? keys.length+" วัน":"")+
+      stat("เกินเกณฑ์ 135/85", S.length? over+" ครั้ง":"–", S.length? Math.round(over/S.length*100)+"% ของที่วัด":"")+
+      stat("ถึง 180/110", S.length? '<span style="color:'+(sev?"var(--g3)":"inherit")+'">'+sev+" ครั้ง</span>":"–", sev? "ควรแจ้งแพทย์":"");
+    renderChart(); renderList(keys);
+  }
+  function stat(l,v,c){ return '<div class="stat"><span class="label">'+l+'</span><span class="v">'+v+'</span><span class="label">'+(c||"&nbsp;")+'</span></div>'; }
+
+  function renderChart(){
+    const {y,m}=state.view; const nd=new Date(y,m+1,0).getDate();
+    const W=340,H=200,L=30,R=8,T=10,B=24, ymin=60,ymax=200;
+    const X=d=>L+(d-1)*(W-L-R)/Math.max(nd-1,1), Y=v=>T+(ymax-v)*(H-T-B)/(ymax-ymin);
+    let g='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Sans Thai, Tahoma, sans-serif" font-size="9">';
+    for(let v=60; v<=200; v+=20){ g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--line)" stroke-width="0.6"/>'+
+      '<text x="'+(L-5)+'" y="'+(Y(v)+3)+'" text-anchor="end" fill="var(--muted)">'+v+'</text>'; }
+    [135,85].forEach(v=>{ g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 3"/>'; });
+    [1,5,10,15,20,25,nd].forEach(d=>{ g+='<text x="'+X(d)+'" y="'+(H-8)+'" text-anchor="middle" fill="var(--muted)">'+d+'</text>'; });
+    const series=[["am_s","var(--sys)",1],["pm_s","var(--sys)",0],["am_d","var(--dia)",1],["pm_d","var(--dia)",0]];
+    series.forEach(([k,col,filled])=>{
+      let path="", pts="";
+      for(let d=1; d<=nd; d++){ const r=state.days[y+"-"+pad(m+1)+"-"+pad(d)]; const v=r&&r[k];
+        if(v!=null){ const cx=X(d).toFixed(1), cy=Y(Math.min(Math.max(v,ymin),ymax)).toFixed(1);
+          path += (path && path.slice(-1)!=="|" ? "L":"M")+cx+" "+cy+" ";
+          pts += '<circle cx="'+cx+'" cy="'+cy+'" r="2.6" fill="'+(filled?col:"var(--surface)")+'" stroke="'+col+'" stroke-width="1.3"/>'; }
+        else if(path) path+="|"; }
+      path=path.replace(/\|/g,"");
+      if(path) g+='<path d="'+path+'" fill="none" stroke="'+col+'" stroke-width="'+(filled?1.6:1.1)+'" stroke-opacity="'+(filled?0.9:0.55)+'"/>';
+      g+=pts;
+    });
+    if(!monthKeys().length) g+='<text x="'+((W+L)/2)+'" y="'+(H/2)+'" text-anchor="middle" fill="var(--muted)" font-size="11">ยังไม่มีข้อมูลเดือนนี้</text>';
+    $("chart").innerHTML=g+'</svg>';
+  }
+  function renderList(keys){
+    const list=$("list");
+    if(!state.loaded){ return; }
+    if(!keys.length){ list.innerHTML='<div class="empty-state">ยังไม่มีค่าที่บันทึกในเดือนนี้ กรอกตัวบนและตัวล่างด้านบนแล้วกดบันทึก</div>'; return; }
+    list.innerHTML="";
+    keys.slice().reverse().forEach(k=>{
+      const r=state.days[k]; const b=document.createElement("button"); b.type="button"; b.className="day";
+      const dt=fromIso(k);
+      b.innerHTML='<span class="dd">'+dt.getDate()+'<small>'+dt.toLocaleDateString("th-TH",{weekday:"short"})+'</small></span>'+
+        '<span class="r">'+cellHTML(r.am_s,r.am_d)+'</span><span class="r">'+cellHTML(r.pm_s,r.pm_d)+'</span>'+
+        (r.note? '<span class="note"></span>':"");
+      if(r.note) b.querySelector(".note").textContent=r.note;
+      b.onclick=()=>{ go("home"); state.date=k; $("date").value=k; setPeriod(r.am_s!=null?"am":"pm"); };
+      list.appendChild(b);
+    });
+  }
+  function cellHTML(s,d){
+    if(s==null) return '<span class="empty">—</span>';
+    const g=grade(s,d); return '<span class="s" style="color:var(--'+g[3]+')">'+s+'/'+(d??"–")+'</span>';
+  }
+  $("prevM").onclick=()=>{ let {y,m}=state.view; m--; if(m<0){m=11;y--;} state.view={y,m}; renderMonth(); };
+  $("nextM").onclick=()=>{ let {y,m}=state.view; m++; if(m>11){m=0;y++;} state.view={y,m}; renderMonth(); };
+
+  // ---------- ส่งออก ----------
+  function rows(keys){ return keys.map(k=>{ const r=state.days[k]; return [thDate(k,{day:"2-digit",month:"2-digit",year:"numeric"}), r.am_s??"", r.am_d??"", r.pm_s??"", r.pm_d??"", r.note||""]; }); }
+  const HEAD=["วันที่","เช้า ตัวบน","เช้า ตัวล่าง","ก่อนนอน ตัวบน","ก่อนนอน ตัวล่าง","หมายเหตุ"];
+  $("dlCsv").onclick=async()=>{
+    const dl = await claude.use("downloads"); const keys=Object.keys(state.days).sort();
+    if(!keys.length){ toast("ยังไม่มีข้อมูลให้ส่งออก"); return; }
+    const csv="﻿"+[HEAD].concat(rows(keys)).map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+    if(!dl){ toast("อุปกรณ์นี้ดาวน์โหลดไม่ได้ ใช้ปุ่มคัดลอกแทน"); return; }
+    try{ await dl.save({filename:"บันทึกความดัน.csv", data:csv}); toast("บันทึกไฟล์แล้ว"); }
+    catch(e){ if(e&&e.code!=="declined") toast("ดาวน์โหลดไม่สำเร็จ"); }
+  };
+  $("copyTsv").onclick=async()=>{
+    const tsv=[HEAD].concat(rows(monthKeys())).map(r=>r.join("\t")).join("\n");
+    try{ await navigator.clipboard.writeText(tsv); toast("คัดลอกแล้ว วางใน Google ชีตได้เลย"); $("copyBox").hidden=true; }
+    catch(_){ const box=$("copyBox"); box.hidden=false; box.value=tsv; box.focus(); box.select(); toast("กดค้างที่กล่องแล้วเลือกคัดลอก"); }
+  };
+
+
+  // ---------- สร้างไฟล์ Excel A4 ----------
+  function loadExcelJS(){
+    if(window.ExcelJS) return Promise.resolve(window.ExcelJS);
+    const srcs=["vendor/exceljs.min.js","https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js","https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"];
+    return srcs.reduce((p,src)=>p.catch(()=>new Promise((ok,bad)=>{ const sc=document.createElement("script"); sc.src=src; sc.onload=()=>window.ExcelJS?ok(window.ExcelJS):bad(); sc.onerror=bad; document.head.appendChild(sc); })), Promise.reject());
+  }
+  $("mkA4").onclick=async()=>{
+    const btn=$("mkA4"), msg=$("a4Msg");
+    if(!Object.keys(state.days).length){ toast("ยังไม่มีข้อมูล"); return; }
+    btn.disabled=true; btn.textContent="กำลังสร้างไฟล์…"; msg.hidden=true;
+    try{
+      const dl=await claude.use("downloads");
+      if(!dl) throw {code:"unavailable"};
+      const ExcelJS=await loadExcelJS();
+      try{ await document.fonts.ready; }catch(_){}
+      const wb=buildA4Workbook(ExcelJS, state.days, {chart:drawA4Chart, today:new Date()});
+      const buf=await wb.xlsx.writeBuffer();
+      const blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+      await dl.save({filename:"บันทึกความดัน_"+iso(new Date())+".xlsx", data:blob});
+      say("ได้ไฟล์แล้วครับคุณเติม เอาไปพิมพ์ให้หมอดูได้เลย","Happy",true); state.hold=Date.now()+6000;
+    }catch(e){
+      if(e && e.code==="declined"){ }
+      else { msg.hidden=false; msg.textContent = (e&&e.code==="unavailable") ? "อุปกรณ์นี้บันทึกไฟล์ไม่ได้ ลองเปิดแอปใน Safari หรือในคอมพิวเตอร์" : "สร้างไฟล์ไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วลองใหม่อีกครั้ง"; }
+    }finally{ btn.disabled=false; btn.textContent="สร้างไฟล์ Excel"; }
+  };
+
+
+  // ---------- สร้างไฟล์ PDF ----------
+  function loadJsPDF(){
+    if(window.jspdf&&window.jspdf.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
+    const srcs=["vendor/jspdf.umd.min.js","https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js","https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"];
+    return srcs.reduce((p,src)=>p.catch(()=>new Promise((ok,bad)=>{ const sc=document.createElement("script"); sc.src=src; sc.onload=()=>(window.jspdf&&window.jspdf.jsPDF)?ok(window.jspdf.jsPDF):bad(); sc.onerror=bad; document.head.appendChild(sc); })), Promise.reject());
+  }
+  async function makePdfBlob(){
+    const jsPDF=await loadJsPDF();
+    const pages=await buildPdfPages(state.days,{name:"คุณเติม"});
+    const doc=new jsPDF({unit:"mm",format:"a4",orientation:"portrait",compress:true});
+    pages.forEach((cv,i)=>{ if(i) doc.addPage(); doc.addImage(cv.toDataURL("image/jpeg",0.92),"JPEG",0,0,210,297,undefined,"FAST"); });
+    doc.setProperties({title:"บันทึกความดันโลหิต คุณเติม"});
+    return doc.output("blob");
+  }
+  window.__makePdfBlob=makePdfBlob;
+  $("mkPdf").onclick=async()=>{
+    const btn=$("mkPdf"), msg=$("a4Msg");
+    if(!Object.keys(state.days).length){ toast("ยังไม่มีข้อมูล"); return; }
+    btn.disabled=true; btn.textContent="กำลังสร้างไฟล์…"; msg.hidden=true;
+    try{
+      const dl=await claude.use("downloads");
+      if(!dl) throw {code:"unavailable"};
+      const blob=await makePdfBlob();
+      await dl.save({filename:"บันทึกความดัน_"+iso(new Date())+".pdf", data:blob});
+      say("ได้ไฟล์ PDF แล้วครับคุณเติม เปิดแล้วสั่งพิมพ์ได้เลย","Happy",true); state.hold=Date.now()+6000;
+    }catch(e){
+      if(e && e.code==="declined"){ }
+      else { msg.hidden=false; msg.textContent = (e&&e.code==="unavailable") ? "อุปกรณ์นี้บันทึกไฟล์ไม่ได้ ลองเปิดแอปใน Safari หรือในคอมพิวเตอร์" : "สร้างไฟล์ไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วลองใหม่อีกครั้ง"; }
+    }finally{ btn.disabled=false; btn.textContent="สร้างไฟล์ PDF"; }
+  };
+
+  if($("bkJson")) $("bkJson").onclick=async()=>{
+    const keys=Object.keys(state.days); if(!keys.length){ toast("ยังไม่มีข้อมูล"); return; }
+    const dl=await claude.use("downloads"); if(!dl){ toast("อุปกรณ์นี้บันทึกไฟล์ไม่ได้"); return; }
+    const body=JSON.stringify({app:"bp-log",version:1,exported:new Date().toISOString(),readings:state.days},null,1);
+    try{ await dl.save({filename:"สำรองความดัน_"+iso(new Date())+".json", data:body}); toast("ได้ไฟล์สำรองแล้ว "+keys.length+" วัน"); }
+    catch(e){ if(e&&e.code!=="declined") toast("บันทึกไฟล์ไม่สำเร็จ"); }
+  };
+  $("mkPrint").onclick=async()=>{
+    const btn=$("mkPrint"), msg=$("a4Msg"), tip=$("printTip");
+    if(!Object.keys(state.days).length){ toast("ยังไม่มีข้อมูล"); return; }
+    btn.disabled=true; btn.textContent="กำลังเตรียมหน้าพิมพ์…"; msg.hidden=true; tip.hidden=false;
+    try{
+      const dl=await claude.use("downloads");
+      if(!dl) throw {code:"unavailable"};
+      const blob=await makePdfBlob();
+      say("กดยืนยัน แล้วเลือก พิมพ์ ได้เลยครับคุณเติม","Happy",true); state.hold=Date.now()+8000;
+      await dl.save({filename:"บันทึกความดัน_พิมพ์_"+iso(new Date())+".pdf", data:blob});
+    }catch(e){
+      if(e && e.code==="declined"){ }
+      else { msg.hidden=false; msg.textContent = (e&&e.code==="unavailable") ? "อุปกรณ์นี้สั่งพิมพ์จากแอปไม่ได้ ลองเปิดแอปใน Safari หรือในคอมพิวเตอร์" : "เตรียมหน้าพิมพ์ไม่สำเร็จ ตรวจอินเทอร์เน็ตแล้วลองใหม่อีกครั้ง"; }
+    }finally{ btn.disabled=false; btn.textContent="🖨️ สั่งพิมพ์"; }
+  };
+
+  // ---------- เปลี่ยนหน้า ----------
+  const PAGE_TALK={sum:"นี่คือสรุปของเดือนครับคุณเติม กดลูกศรเพื่อดูเดือนก่อนได้",hist:"แตะแถวไหนก็ได้เพื่อแก้ไขค่าวันนั้นครับคุณเติม",file:"เลือกได้เลยครับคุณเติม PDF หรือ Excel เอาไปพิมพ์ให้หมอดูได้เลย"};
+  function go(name){
+    document.querySelectorAll(".page").forEach(p=>{ p.hidden = p.dataset.page!==name; });
+    document.querySelectorAll(".tabbar button").forEach(b=>{ if(b.dataset.go===name) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+    document.querySelector(".hero").classList.toggle("compact", name!=="home");
+    if(name==="home"){ state.hold=0; validate(); } else { say(PAGE_TALK[name],"Happy"); state.hold=Date.now()+60000; }
+    if(name==="sum") renderChart();
+    try{ localStorage.setItem("bp-page",name); }catch(_){}
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll(".tabbar button").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
+
+  function renderAll(){ renderToday(); renderMonth(); }
+  renderAll(); setPeriod(state.period);
+  try{ const lp=localStorage.getItem("bp-page"); if(lp && lp!=="home" && document.getElementById("page-"+lp)) go(lp); }catch(_){}
+
+  // ---------- เชื่อมฐานข้อมูล ----------
+  (async()=>{
+    const db = await claude.use("db");
+    if(!db){ state.loaded=true; $("list").innerHTML='<div class="empty-state">ยังไม่มีข้อมูล</div>';
+      const msg=$("formMsg"); msg.hidden=false; msg.className="msg info"; msg.textContent="ตอนนี้ยังบันทึกไม่ได้ ต้องเข้าสู่ระบบ Claude ด้วยบัญชีเจ้าของสมุด"; return; }
+    state.db=db;
+    const user = await claude.use("user");
+    if(user && user.isOwner && !(await user.isOwner())){ state.canWrite=false; $("histHint").textContent="ดูได้อย่างเดียว"; }
+    db.collection("readings").onSnapshot(snap=>{
+      const days={}; snap.docs.forEach(d=>{ if(d.exists) days[d.id]=d.data(); });
+      state.days=days; state.loaded=true;
+      const typing = document.activeElement && ["sys","dia","note"].includes(document.activeElement.id);
+      renderAll(); if(!typing) fillFromExisting(); else validate();
+    }, err=>{ state.loaded=true; $("list").innerHTML='<div class="empty-state">โหลดข้อมูลไม่สำเร็จ ลองเปิดหน้านี้ใหม่</div>'; });
+  })();
+})();
+</script>
+<script>
+/* รหัส PIN, Face ID, สำรองข้อมูล และเตือนให้สำรอง — สำหรับแอปออฟไลน์ */
+(function () {
+  const $ = id => document.getElementById(id);
+  const LK = "bp-lock-v1", BK = "bp-lastbackup", ST = window.__bpStore;
+  const getLock = () => { try { return JSON.parse(localStorage.getItem(LK) || "null"); } catch (_) { return null; } };
+  const setLock = v => { if (v) localStorage.setItem(LK, JSON.stringify(v)); else localStorage.removeItem(LK); };
+  const hex = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+  const b64u = b => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const ub64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+  const hashPin = async (pin, salt) => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + ":" + pin)));
+  const toast = t => { const el = $("toast"); if (!el) return; el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2600); };
+  const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const faceAvail = async () => { try { return !!(window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); } catch (_) { return false; } };
+
+  async function faceRegister() {
+    const cred = await navigator.credentials.create({ publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)), rp: { name: "สมุดความดัน" },
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "สมุดความดัน", displayName: "สมุดความดัน" },
+      pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+      authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required", residentKey: "discouraged" },
+      timeout: 60000, attestation: "none" } });
+    return b64u(cred.rawId);
+  }
+  async function faceCheck() {
+    const L = getLock(); if (!L || !L.cred) throw new Error("no cred");
+    await navigator.credentials.get({ publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)),
+      allowCredentials: [{ type: "public-key", id: ub64u(L.cred) }], userVerification: "required", timeout: 60000 } });
+  }
+
+  // ---------- หน้าจอใส่รหัส ----------
+  const ov = document.createElement("div");
+  ov.id = "lockOv"; ov.hidden = true; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true");
+  ov.innerHTML = `
+  <div class="lk">
+    <div class="lk-logo" aria-hidden="true">♥</div>
+    <h2 class="lk-title" id="lkTitle">สมุดความดันคุณเติม</h2>
+    <p class="lk-sub" id="lkSub">ใส่รหัส PIN</p>
+    <div id="lkPad">
+      <div class="dots" id="lkDots" aria-live="polite"><i></i><i></i><i></i><i></i></div>
+      <div class="keys">${[1,2,3,4,5,6,7,8,9].map(n => `<button type="button" data-k="${n}">${n}</button>`).join("")}
+        <button type="button" id="lkFace" class="fn" aria-label="ปลดล็อกด้วย Face ID">☺︎<small>Face ID</small></button>
+        <button type="button" data-k="0">0</button>
+        <button type="button" data-k="del" class="fn" aria-label="ลบ">⌫</button></div>
+      <div class="lk-links"><button type="button" class="link" id="lkForgot">ลืมรหัส?</button><button type="button" class="link" id="lkCancel">ยกเลิก</button></div>
+    </div>
+    <div id="lkHint" hidden class="lk-form">
+      <label class="label" for="lkHintIn">คำใบ้ช่วยจำ (ไม่บังคับ) — เขียนให้คุณเติมเข้าใจคนเดียว ห้ามเขียนตัวรหัส</label>
+      <input type="text" id="lkHintIn" maxlength="60" placeholder="เช่น ปีที่ย้ายบ้าน">
+      <button class="btn" type="button" id="lkHintOk">ต่อไป</button>
+    </div>
+    <div id="lkFaceAsk" hidden class="lk-form">
+      <p>ให้ปลดล็อกด้วย <b>Face ID</b> ด้วยไหมครับ? แค่มองหน้าจอก็เข้าแอปได้ ถึงลืมรหัสก็ยังเข้าได้</p>
+      <button class="btn" type="button" id="lkFaceYes">เปิดใช้ Face ID</button>
+      <button class="btn ghost" type="button" id="lkFaceNo">ไว้ทีหลัง</button>
+    </div>
+    <div id="lkForgotBox" hidden class="lk-form">
+      <p id="lkHintShow"></p>
+      <button class="btn" type="button" id="lkFace2">ปลดล็อกด้วย Face ID</button>
+      <button class="btn ghost" type="button" id="lkBack">กลับไปใส่รหัส</button>
+      <hr>
+      <p class="sub">ทางสุดท้าย: ล้างแอปแล้วเริ่มใหม่ จากนั้นกด “นำข้อมูลกลับมา” จากไฟล์สำรองล่าสุด ข้อมูลที่ยังไม่ได้สำรองจะหายไป</p>
+      <button class="btn danger" type="button" id="lkWipe">ล้างแอปเพื่อเริ่มใหม่</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const show = id => ["lkPad", "lkHint", "lkFaceAsk", "lkForgotBox"].forEach(k => $(k).hidden = k !== id);
+  let mode = "", buf = "", first = "", fails = 0, waitUntil = 0, cb = null, cancelCb = null;
+  const dots = () => [...$("lkDots").children].forEach((d, i) => d.classList.toggle("on", i < buf.length));
+  const sub = t => $("lkSub").textContent = t;
+  function openPad(m, title, subt, done, cancel) {
+    mode = m; buf = ""; cb = done; cancelCb = cancel || null;
+    $("lkTitle").textContent = title; sub(subt); dots(); show("lkPad");
+    $("lkCancel").hidden = !cancel; $("lkForgot").hidden = m !== "unlock" && m !== "verify";
+    ov.hidden = false; document.documentElement.classList.add("locked");
+    refreshFaceBtn();
+  }
+  function closePad() { ov.hidden = true; document.documentElement.classList.remove("locked"); }
+  async function refreshFaceBtn() {
+    const L = getLock(), can = (mode === "unlock" || mode === "verify") && L && L.cred && await faceAvail();
+    $("lkFace").style.visibility = can ? "visible" : "hidden"; $("lkFace2").hidden = !can;
+  }
+  function shake(t) { sub(t); const d = $("lkDots"); d.classList.remove("shake"); void d.offsetWidth; d.classList.add("shake"); try { navigator.vibrate && navigator.vibrate(120); } catch (_) {} }
+  async function submit() {
+    const pin = buf; buf = ""; dots();
+    if (mode === "unlock" || mode === "verify") {
+      if (Date.now() < waitUntil) { shake("ใส่ผิดหลายครั้ง รออีก " + Math.ceil((waitUntil - Date.now()) / 1000) + " วินาที"); return; }
+      const L = getLock();
+      if (L && await hashPin(pin, L.salt) === L.hash) { fails = 0; closePad(); cb && cb(); }
+      else { fails++; if (fails >= 5) { waitUntil = Date.now() + 30000; fails = 0; shake("ใส่ผิด 5 ครั้ง รอ 30 วินาทีแล้วลองใหม่"); } else shake("รหัสไม่ถูกต้อง ลองใหม่อีกครั้ง"); }
+    } else if (mode === "set1") { first = pin; mode = "set2"; sub("ใส่รหัสเดิมอีกครั้ง เพื่อยืนยัน"); }
+    else if (mode === "set2") {
+      if (pin === first) { first = ""; cb && cb(pin); }
+      else { mode = "set1"; shake("รหัสไม่ตรงกัน เริ่มตั้งใหม่อีกครั้ง"); }
+    }
+  }
+  ov.addEventListener("click", e => {
+    const k = e.target.closest("[data-k]"); if (!k) return;
+    if (k.dataset.k === "del") { buf = buf.slice(0, -1); dots(); return; }
+    if (buf.length >= 4) return; buf += k.dataset.k; dots(); if (buf.length === 4) setTimeout(submit, 140);
+  });
+  document.addEventListener("keydown", e => {
+    if (ov.hidden || $("lkPad").hidden) return;
+    if (/^\d$/.test(e.key) && buf.length < 4) { buf += e.key; dots(); if (buf.length === 4) setTimeout(submit, 140); }
+    if (e.key === "Backspace") { buf = buf.slice(0, -1); dots(); }
+  });
+  const tryFace = async () => { try { await faceCheck(); fails = 0; closePad(); cb && cb(); } catch (_) { show("lkPad"); sub("ใช้ Face ID ไม่สำเร็จ ใส่รหัส PIN แทนได้ครับ"); } };
+  $("lkFace").onclick = tryFace; $("lkFace2").onclick = tryFace;
+  $("lkCancel").onclick = () => { closePad(); cancelCb && cancelCb(); };
+  $("lkForgot").onclick = () => {
+    const L = getLock(); $("lkHintShow").innerHTML = "";
+    const p = $("lkHintShow"); if (L && L.hint) { p.append("คำใบ้ของคุณเติม: "); const b = document.createElement("b"); b.textContent = L.hint; p.append(b); } else p.textContent = "ไม่ได้ตั้งคำใบ้ไว้";
+    $("lkWipe").textContent = "ล้างแอปเพื่อเริ่มใหม่"; $("lkWipe").dataset.armed = ""; show("lkForgotBox"); refreshFaceBtn();
+  };
+  $("lkBack").onclick = () => { show("lkPad"); sub("ใส่รหัส PIN"); };
+  $("lkWipe").onclick = () => {
+    const b = $("lkWipe");
+    if (!b.dataset.armed) { b.dataset.armed = "1"; b.textContent = "แตะอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด"; return; }
+    localStorage.removeItem(ST.KEY); setLock(null); ST.emit(); closePad(); renderSec();
+    toast("ล้างแอปแล้ว ไปที่หน้า ไฟล์ แล้วกด นำข้อมูลกลับมา");
+  };
+
+  // ---------- ตั้งรหัส ----------
+  function startSetPin(after) {
+    openPad("set1", "ตั้งรหัส PIN ใหม่", "ใส่ตัวเลข 4 หลักที่จำได้", async pin => {
+      const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
+      const old = getLock();
+      setLock({ salt, hash: await hashPin(pin, salt), hint: old ? old.hint || "" : "", cred: old ? old.cred || "" : "" });
+      $("lkHintIn").value = old && old.hint || ""; show("lkHint"); $("lkHintIn").focus();
+      $("lkHintOk").onclick = async () => {
+        const L = getLock(); L.hint = $("lkHintIn").value.trim(); setLock(L);
+        if (!L.cred && await faceAvail()) { show("lkFaceAsk"); }
+        else { closePad(); renderSec(); toast("ตั้งรหัสเรียบร้อยแล้ว"); after && after(); }
+      };
+      $("lkFaceYes").onclick = async () => {
+        try { const L = getLock(); L.cred = await faceRegister(); setLock(L); toast("เปิดใช้ Face ID แล้ว"); }
+        catch (_) { toast("เปิด Face ID ไม่สำเร็จ ลองใหม่ได้ที่หน้า ไฟล์"); }
+        closePad(); renderSec(); after && after();
+      };
+      $("lkFaceNo").onclick = () => { closePad(); renderSec(); toast("ตั้งรหัสเรียบร้อยแล้ว"); after && after(); };
+    }, () => renderSec());
+  }
+
+  // ---------- ล็อกเมื่อเปิดแอป และเมื่อกลับเข้ามาหลังออกไปเกิน 1 นาที ----------
+  const lockNow = () => { if (getLock()) openPad("unlock", "สมุดความดันคุณเติม", "ใส่รหัส PIN", null); };
+  let hiddenAt = 0;
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) hiddenAt = Date.now();
+    else if (getLock() && ov.hidden && hiddenAt && Date.now() - hiddenAt > 60000) lockNow();
+  });
+  lockNow();
+
+  // ---------- การ์ดความปลอดภัยและสำรองข้อมูล ----------
+  const card = document.createElement("section");
+  card.className = "card"; card.setAttribute("aria-labelledby", "secTitle");
+  card.innerHTML = `
+    <h2 id="secTitle"><span><span class="ico" style="background:var(--g0-bg);color:var(--g0)">🔒</span>ความปลอดภัยและสำรองข้อมูล</span></h2>
+    <p class="sub">ข้อมูลทั้งหมดเก็บอยู่ในไอโฟนเครื่องนี้เท่านั้น ควรสำรองเป็นไฟล์ไว้ในแอปไฟล์หรือ Google Drive สัปดาห์ละครั้ง</p>
+    <div class="msg info" id="bkInfo"></div>
+    <div class="grid2">
+      <button class="btn ghost" type="button" id="bkSave">สำรองข้อมูล</button>
+      <button class="btn ghost" type="button" id="bkLoad">นำข้อมูลกลับมา</button>
+    </div>
+    <input type="file" id="bkFile" accept=".json,application/json" hidden>
+    <p class="label" style="margin:6px 0 0">รหัส PIN ก่อนเข้าแอป</p>
+    <p class="sub" id="pinInfo"></p>
+    <div class="grid2" id="pinBtns"></div>`;
+  const filePage = $("page-file"), foot = filePage.querySelector(".foot");
+  filePage.insertBefore(card, foot);
+
+  const banner = document.createElement("div");
+  banner.className = "msg warn bk-banner"; banner.hidden = true;
+  banner.innerHTML = `<span id="bnTxt"></span> <button type="button" class="btn ghost" id="bnGo">สำรองตอนนี้</button>`;
+  $("page-home").prepend(banner);
+
+  const lastBk = () => { const v = localStorage.getItem(BK); return v ? new Date(v) : null; };
+  const daysSince = d => Math.floor((Date.now() - d.getTime()) / 86400000);
+  async function renderSec() {
+    const n = Object.keys(ST.load()).length, lb = lastBk();
+    $("bkInfo").textContent = !n ? "ยังไม่มีข้อมูลในแอป ถ้ามีไฟล์สำรอง กด นำข้อมูลกลับมา ได้เลย"
+      : lb ? `มีข้อมูล ${n} วัน · สำรองล่าสุด ${lb.toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" })} (${daysSince(lb) ? daysSince(lb) + " วันที่แล้ว" : "วันนี้"})`
+      : `มีข้อมูล ${n} วัน · ยังไม่เคยสำรองข้อมูล`;
+    const need = n && (!lb || daysSince(lb) >= 7);
+    banner.hidden = !need;
+    $("bnTxt").textContent = lb ? `ไม่ได้สำรองข้อมูลมา ${daysSince(lb)} วันแล้วครับคุณเติม` : "ยังไม่เคยสำรองข้อมูลเลยครับคุณเติม";
+    const L = getLock(), fa = await faceAvail(), pb = $("pinBtns"); pb.innerHTML = "";
+    const mk = (t, fn, cls = "btn ghost") => { const b = document.createElement("button"); b.type = "button"; b.className = cls; b.textContent = t; b.onclick = fn; pb.appendChild(b); return b; };
+    if (!L) { $("pinInfo").textContent = "ยังไม่ได้ตั้งรหัส ใครหยิบเครื่องไปก็เปิดดูได้"; mk("ตั้งรหัส PIN", () => startSetPin()).style.gridColumn = "1 / -1"; return; }
+    $("pinInfo").textContent = "เปิดใช้รหัสอยู่" + (L.cred ? " · ปลดล็อกด้วย Face ID ได้" : "") + (L.hint ? " · มีคำใบ้ช่วยจำ" : "");
+    const verify = fn => openPad("verify", "ยืนยันตัวตน", "ใส่รหัส PIN ปัจจุบัน", fn, () => {});
+    mk("เปลี่ยนรหัส", () => verify(() => startSetPin()));
+    mk("ปิดรหัส", () => verify(() => { setLock(null); renderSec(); toast("ปิดรหัสแล้ว"); }));
+    if (fa) mk(L.cred ? "ปิด Face ID" : "เปิดใช้ Face ID", () => verify(async () => {
+      const X = getLock();
+      if (X.cred) { X.cred = ""; setLock(X); toast("ปิด Face ID แล้ว"); }
+      else { try { X.cred = await faceRegister(); setLock(X); toast("เปิดใช้ Face ID แล้ว"); } catch (_) { toast("เปิด Face ID ไม่สำเร็จ"); } }
+      renderSec();
+    })).style.gridColumn = "1 / -1";
+  }
+
+  async function backup() {
+    const data = ST.load(); if (!Object.keys(data).length) { toast("ยังไม่มีข้อมูลให้สำรอง"); return; }
+    const body = JSON.stringify({ app: "bp-log", version: 1, exported: new Date().toISOString(), readings: data }, null, 1);
+    try {
+      const dl = await claude.use("downloads");
+      await dl.save({ filename: "สำรองความดัน_" + iso(new Date()) + ".json", data: body });
+      localStorage.setItem(BK, new Date().toISOString()); renderSec(); toast("สำรองข้อมูลแล้ว");
+    } catch (e) { if (!e || e.code !== "declined") toast("สำรองข้อมูลไม่สำเร็จ"); }
+  }
+  $("bkSave").onclick = backup; $("bnGo").onclick = backup;
+  $("bkLoad").onclick = () => $("bkFile").click();
+  $("bkFile").onchange = async e => {
+    const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+    try {
+      const j = JSON.parse(await f.text());
+      let src = j && j.readings ? j.readings : j;
+      if (Array.isArray(src)) { const o = {}; src.forEach(d => { if (d && d.date) o[d.date] = d; }); src = o; }
+      const cur = ST.load(); let n = 0;
+      const num = v => (v === undefined || v === null || v === "") ? undefined : (Number.isFinite(+v) && +v > 0 && +v < 400 ? Math.round(+v) : NaN);
+      for (const k of Object.keys(src || {})) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(k)) continue;
+        const r = src[k] || {}, c = { date: k, updated: r.updated || new Date().toISOString() };
+        let bad = false;
+        ["am_s", "am_d", "pm_s", "pm_d"].forEach(x => { const v = num(r[x]); if (Number.isNaN(v)) bad = true; else if (v !== undefined) c[x] = v; });
+        if (r.note) c.note = String(r.note).slice(0, 120);
+        if (bad || (c.am_s == null && c.pm_s == null && !c.note)) continue;
+        if (cur[k] && cur[k].updated && cur[k].updated > c.updated) continue;
+        cur[k] = c; n++;
+      }
+      if (!n) { toast("ไม่พบข้อมูลความดันในไฟล์นี้"); return; }
+      ST.store(cur); ST.emit(); renderSec(); toast("นำข้อมูลกลับมาแล้ว " + n + " วัน");
+    } catch (_) { toast("อ่านไฟล์ไม่ได้ ต้องเป็นไฟล์สำรองจากแอปนี้"); }
+  };
+  window.addEventListener("storage", renderSec);
+  const orig = ST.emit; ST.emit = () => { orig(); renderSec(); };
+  renderSec();
+})();
+
+</script>
+<script>
+if("serviceWorker" in navigator){ addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
+</script>
+
+</body>
+</html>
