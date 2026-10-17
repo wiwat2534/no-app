@@ -184,6 +184,8 @@ html.locked .wrap,html.locked .tabbar{visibility:hidden}
   margin-bottom:env(safe-area-inset-bottom,0px)}
 .sheet-ico{font-size:2rem}
 .sheet-card .sub{word-break:break-all}
+.sync-chip{align-self:flex-start;border:0;border-radius:999px;padding:4px 12px;font:600 .8rem var(--ui);background:var(--dia-soft);color:var(--dia);cursor:pointer}
+input[type=password]{font:inherit;width:100%;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
 </style>
 
 </head>
@@ -319,19 +321,20 @@ html.locked .wrap,html.locked .tabbar{visibility:hidden}
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (_) { return {}; } };
   const store = o => localStorage.setItem(KEY, JSON.stringify(o));
   const subs = new Set();
+  const live = () => { const all = load(), o = {}; for (const k in all) if (all[k] && !all[k].deleted) o[k] = all[k]; return o; };
   const emit = () => {
-    const all = load();
+    const all = live();
     const snap = { docs: Object.keys(all).map(id => ({ id, exists: true, data: () => all[id] })) };
     subs.forEach(f => { try { f(snap); } catch (e) { console.error(e); } });
   };
-  const api = { load, store, emit, KEY }; window.__bpStore = api;
+  const api = { load, live, store, emit, KEY, onWrite: null }; window.__bpStore = api;
   const db = {
     collection() {
       return {
         doc(id) {
           return {
-            async set(v) { const a = load(); a[id] = v; store(a); api.emit(); },
-            async delete() { const a = load(); delete a[id]; store(a); api.emit(); }
+            async set(v) { const a = load(); a[id] = Object.assign({}, v, { updated: v.updated || new Date().toISOString() }); store(a); api.emit(); api.onWrite && api.onWrite(); },
+            async delete() { const a = load(); a[id] = { date: id, deleted: true, updated: new Date().toISOString() }; store(a); api.emit(); api.onWrite && api.onWrite(); }  // เก็บร่องรอยการลบไว้ เพื่อให้ซิงก์ลบในเครื่องอื่นด้วย
           };
         },
         onSnapshot(cb) { subs.add(cb); setTimeout(emit, 0); return () => subs.delete(cb); }
@@ -1552,11 +1555,12 @@ async function buildPdfPages(days, opts) {
   const lastBk = () => { const v = localStorage.getItem(BK); return v ? new Date(v) : null; };
   const daysSince = d => Math.floor((Date.now() - d.getTime()) / 86400000);
   async function renderSec() {
-    const n = Object.keys(ST.load()).length, lb = lastBk();
+    const n = Object.keys(ST.live()).length, lb = lastBk();
     $("bkInfo").textContent = !n ? "ยังไม่มีข้อมูลในแอป ถ้ามีไฟล์สำรอง กด นำข้อมูลกลับมา ได้เลย"
       : lb ? `มีข้อมูล ${n} วัน · สำรองล่าสุด ${lb.toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" })} (${daysSince(lb) ? daysSince(lb) + " วันที่แล้ว" : "วันนี้"})`
       : `มีข้อมูล ${n} วัน · ยังไม่เคยสำรองข้อมูล`;
-    const need = n && (!lb || daysSince(lb) >= 7);
+    const sl = localStorage.getItem("bp-sync-last"), synced = localStorage.getItem("bp-sync-v1") && sl && daysSince(new Date(sl)) < 7;
+    const need = n && !synced && (!lb || daysSince(lb) >= 7);
     banner.hidden = !need;
     $("bnTxt").textContent = lb ? `ไม่ได้สำรองข้อมูลมา ${daysSince(lb)} วันแล้วครับคุณเติม` : "ยังไม่เคยสำรองข้อมูลเลยครับคุณเติม";
     const L = getLock(), fa = await faceAvail(), pb = $("pinBtns"); pb.innerHTML = "";
@@ -1575,7 +1579,7 @@ async function buildPdfPages(days, opts) {
   }
 
   async function backup() {
-    const data = ST.load(); if (!Object.keys(data).length) { toast("ยังไม่มีข้อมูลให้สำรอง"); return; }
+    const data = ST.live(); if (!Object.keys(data).length) { toast("ยังไม่มีข้อมูลให้สำรอง"); return; }
     const body = JSON.stringify({ app: "bp-log", version: 1, exported: new Date().toISOString(), readings: data }, null, 1);
     try {
       const dl = await claude.use("downloads");
@@ -1600,16 +1604,134 @@ async function buildPdfPages(days, opts) {
         ["am_s", "am_d", "pm_s", "pm_d"].forEach(x => { const v = num(r[x]); if (Number.isNaN(v)) bad = true; else if (v !== undefined) c[x] = v; });
         if (r.note) c.note = String(r.note).slice(0, 120);
         if (bad || (c.am_s == null && c.pm_s == null && !c.note)) continue;
-        if (cur[k] && cur[k].updated && cur[k].updated > c.updated) continue;
+        if (cur[k] && cur[k].updated && cur[k].updated > c.updated && !cur[k].deleted) continue;
+        if (cur[k] && cur[k].deleted) c.updated = new Date().toISOString();
         cur[k] = c; n++;
       }
       if (!n) { toast("ไม่พบข้อมูลความดันในไฟล์นี้"); return; }
-      ST.store(cur); ST.emit(); renderSec(); toast("นำข้อมูลกลับมาแล้ว " + n + " วัน");
+      ST.store(cur); ST.emit(); renderSec(); toast("นำข้อมูลกลับมาแล้ว " + n + " วัน"); ST.onWrite && ST.onWrite();
     } catch (_) { toast("อ่านไฟล์ไม่ได้ ต้องเป็นไฟล์สำรองจากแอปนี้"); }
   };
   window.addEventListener("storage", renderSec);
   const orig = ST.emit; ST.emit = () => { orig(); renderSec(); };
   renderSec();
+})();
+
+/* ซิงก์ออนไลน์: เก็บข้อมูลไว้ในที่เก็บ GitHub แบบส่วนตัว (Private) ของคุณเติม
+   ใช้ได้หลายเครื่อง ไอโฟน + คอมพิวเตอร์ และ Claude อ่านไปวิเคราะห์ได้ */
+(function () {
+  const $ = id => document.getElementById(id), ST = window.__bpStore;
+  const SK = "bp-sync-v1", LK = "bp-sync-last", FILE = "readings.json";
+  const getS = () => { try { return JSON.parse(localStorage.getItem(SK) || "null"); } catch (_) { return null; } };
+  const setS = v => { if (v) localStorage.setItem(SK, JSON.stringify(v)); else localStorage.removeItem(SK); };
+  const toast = t => { const el = $("toast"); if (!el) return; el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2800); };
+  const b64e = str => { const u = new TextEncoder().encode(str); let s = ""; for (let i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192)); return btoa(s); };
+  const b64d = b => new TextDecoder().decode(Uint8Array.from(atob(b.replace(/\s/g, "")), c => c.charCodeAt(0)));
+  const gh = (S, path, opt = {}) => fetch("https://api.github.com/repos/" + S.repo + path, Object.assign({ cache: "no-store" }, opt, {
+    headers: Object.assign({ Authorization: "Bearer " + S.token, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }, opt.body ? { "Content-Type": "application/json" } : {}) }));
+  const ERR = { token: "รหัสเชื่อมต่อ (token) ไม่ถูกต้องหรือหมดอายุ", perm: "token ไม่มีสิทธิ์เขียนที่เก็บนี้ (ต้องเปิด Contents: Read and write)",
+    repo: "ไม่พบที่เก็บ หรือ token ไม่ได้รับสิทธิ์เข้าที่เก็บนี้", public: "ที่เก็บนี้เป็น Public — ข้อมูลสุขภาพจะถูกเปิดเผย ต้องใช้ที่เก็บแบบ Private เท่านั้น", net: "เชื่อมต่ออินเทอร์เน็ตไม่ได้ จะลองใหม่อัตโนมัติ" };
+  const code = r => r.status === 401 ? "token" : r.status === 403 ? "perm" : r.status === 404 ? "repo" : "http" + r.status;
+
+  let busy = false, again = false, timer = null;
+  function setStatus(t, bad) { const el = $("syncInfo"); if (el) { el.textContent = t; el.className = "msg " + (bad ? "warn" : "info"); } const c = $("syncChip"); if (c) { c.textContent = bad ? "⚠︎ ซิงก์ไม่สำเร็จ" : t.startsWith("กำลัง") ? "⟳ กำลังซิงก์" : "☁︎ ซิงก์แล้ว"; c.hidden = !getS(); } }
+  const lastTxt = () => { const v = localStorage.getItem(LK); return v ? "ซิงก์ล่าสุด " + new Date(v).toLocaleString("th-TH", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "ยังไม่เคยซิงก์"; };
+
+  async function syncNow(manual) {
+    const S = getS(); if (!S) return;
+    if (!navigator.onLine) { setStatus("ตอนนี้ไม่มีอินเทอร์เน็ต บันทึกไว้ในเครื่องก่อน จะซิงก์เองเมื่อมีเน็ต · " + lastTxt()); return; }
+    if (busy) { again = true; return; }
+    busy = true; setStatus("กำลังซิงก์…");
+    try {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const r = await gh(S, "/contents/" + FILE);
+        let remote = {}, sha = null;
+        if (r.status === 200) { const j = await r.json(); sha = j.sha; try { remote = (JSON.parse(b64d(j.content)) || {}).readings || {}; } catch (_) { remote = {}; } }
+        else if (r.status !== 404) throw code(r);
+        const local = ST.load(), merged = {}; let localChanged = false, remoteChanged = !sha;
+        for (const k of new Set(Object.keys(local).concat(Object.keys(remote)))) {
+          const a = local[k], b = remote[k];
+          if (a && (!b || (a.updated || "") > (b.updated || ""))) { merged[k] = a; if (JSON.stringify(a) !== JSON.stringify(b)) remoteChanged = true; }
+          else if (b) { merged[k] = b; if (JSON.stringify(a) !== JSON.stringify(b)) localChanged = true; }
+        }
+        if (localChanged) { ST.store(merged); ST.emit(); }
+        if (remoteChanged) {
+          const body = { message: "บันทึกความดัน " + new Date().toISOString(), content: b64e(JSON.stringify({ app: "bp-log", version: 1, updated: new Date().toISOString(), readings: merged }, null, 1)) };
+          if (sha) body.sha = sha;
+          const p = await gh(S, "/contents/" + FILE, { method: "PUT", body: JSON.stringify(body) });
+          if ((p.status === 409 || p.status === 422) && attempt < 2) continue;   // อีกเครื่องเพิ่งบันทึก ดึงใหม่แล้วรวมอีกรอบ
+          if (!p.ok) throw code(p);
+        }
+        localStorage.setItem(LK, new Date().toISOString());
+        setStatus("เชื่อมต่อกับ " + S.repo + " · " + lastTxt());
+        if (manual) toast("ซิงก์เรียบร้อยแล้ว");
+        break;
+      }
+    } catch (e) {
+      const m = typeof e === "string" ? (ERR[e] || "ซิงก์ไม่สำเร็จ (" + e + ")") : ERR.net;
+      setStatus(m + " · " + lastTxt(), true); if (manual) toast("ซิงก์ไม่สำเร็จ");
+    } finally { busy = false; if (again) { again = false; setTimeout(() => syncNow(), 500); } }
+  }
+  const soon = () => { clearTimeout(timer); timer = setTimeout(() => syncNow(), 1500); };
+  ST.onWrite = soon;
+  window.addEventListener("online", soon);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) soon(); });
+  setInterval(() => { if (!document.hidden) syncNow(); }, 5 * 60 * 1000);
+
+  // ---------- การ์ดตั้งค่า ----------
+  const card = document.createElement("section");
+  card.className = "card"; card.setAttribute("aria-labelledby", "syncTitle");
+  card.innerHTML = `
+    <h2 id="syncTitle"><span><span class="ico" style="background:var(--dia-soft);color:var(--dia)">☁︎</span>ซิงก์ออนไลน์</span></h2>
+    <p class="sub">เก็บข้อมูลไว้ในที่เก็บ GitHub แบบส่วนตัวของคุณเติม ใช้ได้ทั้งไอโฟนและคอมพิวเตอร์ ข้อมูลไม่หายแม้เครื่องหาย และให้ Claude ช่วยวิเคราะห์ได้ ไม่มีเน็ตก็ยังบันทึกได้ จะซิงก์เองเมื่อมีเน็ต</p>
+    <div class="msg info" id="syncInfo"></div>
+    <div id="syncForm" class="lk-form">
+      <label class="label" for="syncRepo">ที่เก็บแบบ Private (ชื่อผู้ใช้/ชื่อที่เก็บ)</label>
+      <input type="text" id="syncRepo" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="wiwat2534/bp-data">
+      <label class="label" for="syncToken">รหัสเชื่อมต่อ (token) — คัดลอกจาก GitHub มาวาง ห้ามส่งให้ใคร</label>
+      <input type="password" id="syncToken" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+      <button class="btn" type="button" id="syncConnect">เชื่อมต่อ</button>
+    </div>
+    <div class="grid2" id="syncBtns" hidden>
+      <button class="btn ghost" type="button" id="syncGo">ซิงก์ตอนนี้</button>
+      <button class="btn ghost" type="button" id="syncOff">ยกเลิกการเชื่อมต่อ</button>
+    </div>`;
+  const filePage = $("page-file"), foot = filePage.querySelector(".foot");
+  filePage.insertBefore(card, foot);
+  const chip = document.createElement("button");
+  chip.type = "button"; chip.id = "syncChip"; chip.className = "sync-chip"; chip.hidden = true;
+  chip.onclick = () => syncNow(true);
+  const hero = document.querySelector(".hero-text"); if (hero) hero.appendChild(chip);
+
+  function render() {
+    const S = getS();
+    $("syncForm").hidden = !!S; $("syncBtns").hidden = !S;
+    if (!S) { $("syncRepo").value = $("syncRepo").value || "wiwat2534/bp-data"; setStatus("ยังไม่ได้เชื่อมต่อ · ข้อมูลอยู่ในเครื่องนี้เท่านั้น"); chip.hidden = true; }
+    else setStatus("เชื่อมต่อกับ " + S.repo + " · " + lastTxt());
+  }
+  $("syncConnect").onclick = async () => {
+    const repo = $("syncRepo").value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "").replace(/\/$/, ""), token = $("syncToken").value.trim();
+    if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) { toast("ใส่ชื่อที่เก็บแบบ ชื่อผู้ใช้/ชื่อที่เก็บ"); return; }
+    if (!token) { toast("วาง token ก่อนครับ"); return; }
+    const btn = $("syncConnect"); btn.disabled = true; btn.textContent = "กำลังตรวจสอบ…";
+    try {
+      const r = await gh({ repo, token }, "");
+      if (!r.ok) throw code(r);
+      const j = await r.json();
+      if (!j.private) throw "public";
+      setS({ repo, token }); $("syncToken").value = ""; render(); toast("เชื่อมต่อแล้ว กำลังซิงก์ข้อมูล");
+      await syncNow(true);
+    } catch (e) { setStatus(typeof e === "string" ? (ERR[e] || "เชื่อมต่อไม่สำเร็จ (" + e + ")") : ERR.net, true); }
+    finally { btn.disabled = false; btn.textContent = "เชื่อมต่อ"; }
+  };
+  $("syncGo").onclick = () => syncNow(true);
+  $("syncOff").onclick = () => {
+    const b = $("syncOff");
+    if (!b.dataset.armed) { b.dataset.armed = "1"; b.textContent = "แตะอีกครั้งเพื่อยืนยัน"; setTimeout(() => { b.dataset.armed = ""; b.textContent = "ยกเลิกการเชื่อมต่อ"; }, 4000); return; }
+    setS(null); localStorage.removeItem(LK); b.dataset.armed = ""; b.textContent = "ยกเลิกการเชื่อมต่อ"; render(); toast("ยกเลิกการเชื่อมต่อแล้ว ข้อมูลในเครื่องยังอยู่ครบ");
+  };
+  render();
+  if (getS()) setTimeout(() => syncNow(), 800);
 })();
 
 </script>
